@@ -69,3 +69,18 @@ def test_gmrf_prior_equivalence():
     from gmrf_util import gmrf_precision_diag as q_old
     from jittermap.inference.inversion import gmrf_precision_diag as q_new
     assert np.allclose(q_old(9, alpha=1.3, scale=2.5), q_new(9, alpha=1.3, scale=2.5))
+
+
+def test_rotated_kernel_pyramid_equivalence():
+    """The fast M_l C(beta) pyramid must match the research repo's
+    sympy Wigner-composition version (figure_scripts/pyramid_rot_kernel)."""
+    sys.path.insert(0, os.path.join(RESEARCH_DIR, "figure_scripts"))
+    from pyramid_rot_kernel import compute_Bbeta_pyramid
+    from jittermap.forward.kernels import compute_A_lm
+    from jittermap.plotting.pyramids import rotated_kernel_pyramid
+
+    l_max, inc = 3, 0.6
+    A_x, _ = compute_A_lm(l_max)
+    mine = np.nan_to_num(rotated_kernel_pyramid(l_max, inc, A_x))
+    hers = np.nan_to_num(compute_Bbeta_pyramid(l_max, inc, A_x))
+    assert np.allclose(mine, hers, atol=1e-12)

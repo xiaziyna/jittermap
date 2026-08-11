@@ -10,7 +10,7 @@ from jittermap.plotting.panels import normalize_map, render_panel
 
 def animate_spin(coeffs, l_max, inclination, n_frames=60, omega=1.0,
                  n_grid=200, cmap="inferno", output_path=None, fps=20,
-                 negate=False):
+                 negate=False, overlay=True, num_meridians=5):
     """Animate one full rotation of a surface.
 
     Parameters
@@ -23,11 +23,17 @@ def animate_spin(coeffs, l_max, inclination, n_frames=60, omega=1.0,
         Inclination beta (radians).
     output_path : str or None
         If given, save the animation (gif via pillow).
+    overlay : bool
+        Draw the projected spin axis and co-rotating meridians.
+    num_meridians : int
+        Number of meridian lines when overlay is enabled.
 
     Returns
     -------
     FuncAnimation
     """
+    from jittermap.plotting.overlays import MeridianOverlay
+
     X, Y, Z, THETA, PHI, mask = build_projection_grid(n_grid=n_grid)
     t_vals = np.linspace(0, 2 * np.pi / omega, n_frames, endpoint=False)
 
@@ -42,12 +48,18 @@ def animate_spin(coeffs, l_max, inclination, n_frames=60, omega=1.0,
     ax.set_xticks([-1, 0, 1])
     ax.set_yticks([-1, 0, 1])
 
+    mo = MeridianOverlay(ax, inclination, omega=omega,
+                         num_meridians=num_meridians) if overlay else None
+
     def update(i):
         frame = normalize_map(render_surface_fast(
             coeffs, l_max, inclination, THETA, PHI, mask, X, Y, Z,
             t=t_vals[i], omega=omega), negate=negate)
         im.set_data(np.flip(frame, axis=0))
-        return (im,)
+        artists = [im]
+        if mo is not None:
+            artists.extend(mo.update(t_vals[i]))
+        return tuple(artists)
 
     ani = FuncAnimation(fig, update, frames=n_frames, interval=50, blit=True)
     if output_path is not None:

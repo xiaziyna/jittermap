@@ -72,7 +72,10 @@ def render_surface_fast(x_coeffs, l_max, inclination, THETA, PHI, mask,
         cb, sb = np.cos(b), np.sin(b)
         return np.array([[cb, 0, sb], [0, 1, 0], [-sb, 0, cb]])
 
-    B_rot = _Rz(omega * t + np.pi / 2) @ _Ry(np.pi / 2) @ _Rz(np.pi / 2)
+    # NOTE the -omega*t: the grid (point-space) rotation is the inverse of
+    # the coefficient-space rotation in the spin phase. With +omega*t the
+    # star appears to precess (validated against render_surface in tests).
+    B_rot = _Rz(-omega * t + np.pi / 2) @ _Ry(np.pi / 2) @ _Rz(np.pi / 2)
     C_rot = _Rz(-inclination + np.pi / 2) @ _Ry(np.pi / 2) @ _Rz(np.pi / 2)
     R = B_rot @ C_rot
 

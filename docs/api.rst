@@ -51,3 +51,9 @@ Plotting
 
 .. automodule:: jittermap.plotting.animate
    :members:
+
+.. automodule:: jittermap.plotting.pyramids
+   :members:
+
+.. automodule:: jittermap.plotting.overlays
+   :members:
