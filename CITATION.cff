@@ -21,5 +21,7 @@ preferred-citation:
   journal: "The Astrophysical Journal"
   year: 2026
   identifiers:
+    - type: doi
+      value: "10.48550/arXiv.2601.11737"
     - type: other
       value: "arXiv:2601.11737"

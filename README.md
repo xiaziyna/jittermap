@@ -18,10 +18,12 @@ The forward model, the astrometric/photometric moment kernels, the Wigner
 rotation formulation, the identifiability results, and the reconstruction
 approach implemented here are all derived in that paper. **If you use
 jittermap — or code or results derived from it — in published work, please
-cite the paper** (see [Citing](#citing) below). Astrometric jitter arises when starspots on a rotating
-stellar surface move in and out of view, shifting the observed photocenter;
-this jitter is a noise floor for detecting small exoplanets, but it also
-carries information about the stellar surface itself.
+cite the paper** (see [Citing](#citing) below).
+
+Astrometric jitter arises when starspots on a rotating stellar surface move
+in and out of view, shifting the observed photocenter; this jitter is a
+noise floor for detecting small exoplanets, but it also carries information
+about the stellar surface itself.
 
 jittermap implements a linear forward model for the astrometric jitter and
 photometric signals of a rotating star in a spherical-harmonic coordinate
@@ -59,8 +61,8 @@ import numpy as np
 import jittermap as jm
 
 # A two-spot surface at degree L=10 with light small-scale texture
-s_true = jm.multispot_surface([(30, 150, 12.0), (-15, 260, 8.0)], l_max=10,
-                              texture_amplitude=0.007, texture_seed=3)
+s_true = jm.multispot_surface([(30, 315, 18.0), (-15, 30, 13.0)], l_max=10,
+                              texture_amplitude=0.002, texture_seed=3)
 
 # Forward model: N uniform samples over one rotation, inclination 0.6 rad
 times = np.linspace(0, 2 * np.pi, 100, endpoint=False)
@@ -82,6 +84,28 @@ astrometry alone accesses the odd-degree modes photometry misses.
 <p align="center">
   <img src="images/reconstruction_demo.png" alt="Truth vs joint, astrometry-only and photometry-only reconstructions">
 </p>
+
+## Tutorials and documentation
+
+Five executed notebook tutorials in [`notebooks/`](notebooks) walk through
+the library and reproduce the key results of the paper:
+
+1. **Surfaces** — spherical-harmonic representation, analytic cap spots,
+   GMRF textures, rendering at different inclinations.
+2. **Forward model** — astrometric jitter and photometric signals vs.
+   inclination and spot latitude (paper Figs. 2–3), including the pole-on
+   circularization worst case.
+3. **Kernels** — the odd/even selection rules, and a machine-precision
+   demonstration of the photometric null space that astrometry breaks.
+4. **Reconstruction** — joint vs. single-channel MAP inversion, noise and
+   regularization, and the identifiable subspace.
+5. **Inclination & Fourier** — the profile objective (photometric
+   inclination ambiguity made visible) and lossless frequency-comb
+   compression.
+
+The full documentation (theory summary with the paper's equations mapped to
+the API, tutorials, examples, API reference) builds with sphinx from
+`docs/` and is ReadTheDocs-ready (`.readthedocs.yaml`).
 
 ## Organization
 
@@ -108,6 +132,7 @@ jittermap
 │   │   └── animate.py     #   spin animations
 │   └── data               # shipped caches: Wigner M_l to L=40, kernels
 ├── examples
+├── notebooks          # executed tutorial notebooks
 ├── tests
 └── docs
 </pre>
@@ -144,7 +169,8 @@ research, please cite the paper:
 
 > Taaki, J. S., Corrales, L., & Hero, A. O. III,
 > "Using Astrometry to Break Degeneracies in Stellar Surface Mapping",
-> The Astrophysical Journal (2026). arXiv:2601.11737
+> The Astrophysical Journal (2026). arXiv:2601.11737,
+> doi:10.48550/arXiv.2601.11737
 
 ```bibtex
 @article{Taaki2026jittermap,
@@ -153,7 +179,8 @@ research, please cite the paper:
   journal = {The Astrophysical Journal},
   year    = {2026},
   eprint  = {2601.11737},
-  archivePrefix = {arXiv}
+  archivePrefix = {arXiv},
+  doi     = {10.48550/arXiv.2601.11737}
 }
 ```
 
