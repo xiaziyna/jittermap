@@ -217,7 +217,7 @@ References
 
 * Taaki, J. S., Corrales, L., & Hero, A. O. III 2026, ApJ,
   "Using Astrometry to Break Degeneracies in Stellar Surface Mapping",
-  arXiv:2601.11737 — **the paper this library implements; please cite it.**
+  arXiv:2601.11737
 * Cowan, N. B., Fuentes, P. A., & Haggard, H. M. 2013, MNRAS 432, 2465 —
   photometric null space of light-curve inversion.
 * Luger, R., Foreman-Mackey, D., & Hedges, C. 2021, AJ 162, 123 —

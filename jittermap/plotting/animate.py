@@ -9,8 +9,8 @@ from jittermap.plotting.panels import normalize_map, render_panel
 
 
 def animate_spin(coeffs, l_max, inclination, n_frames=60, omega=1.0,
-                 n_grid=200, cmap="RdBu_r", output_path=None, fps=20,
-                 negate=True):
+                 n_grid=200, cmap="inferno", output_path=None, fps=20,
+                 negate=False):
     """Animate one full rotation of a surface.
 
     Parameters
@@ -34,10 +34,9 @@ def animate_spin(coeffs, l_max, inclination, n_frames=60, omega=1.0,
     first = normalize_map(render_surface_fast(
         coeffs, l_max, inclination, THETA, PHI, mask, X, Y, Z,
         t=t_vals[0], omega=omega), negate=negate)
-    vmax = np.nanmax(np.abs(first))
 
     fig, ax = plt.subplots(figsize=(5, 5))
-    im = ax.imshow(np.flip(first, axis=0), cmap=cmap, vmin=-vmax, vmax=vmax,
+    im = ax.imshow(np.flip(first, axis=0), cmap=cmap, vmin=-1.0, vmax=0.25,
                    extent=[-1, 1, -1, 1])
     ax.set_aspect("equal")
     ax.set_xticks([-1, 0, 1])
@@ -58,7 +57,7 @@ def animate_spin(coeffs, l_max, inclination, n_frames=60, omega=1.0,
 
 def animate_comparison(surfaces, l_maxes, inclinations, labels,
                        n_frames=60, omega=1.0, n_grid=200,
-                       cmap="RdBu_r", output_path=None, fps=20):
+                       cmap="inferno", output_path=None, fps=20):
     """Animate several surfaces side by side over one rotation
     (e.g. Truth | Joint | Astrometry | Photometry).
 
@@ -81,8 +80,7 @@ def animate_comparison(surfaces, l_maxes, inclinations, labels,
     for ax, s, lm, inc, lab in zip(axes, surfaces, l_maxes, inclinations, labels):
         frame = normalize_map(render_surface_fast(
             s, lm, inc, THETA, PHI, mask, X, Y, Z, t=t_vals[0], omega=omega))
-        vmax = np.nanmax(np.abs(frame))
-        im = ax.imshow(np.flip(frame, axis=0), cmap=cmap, vmin=-vmax, vmax=vmax,
+        im = ax.imshow(np.flip(frame, axis=0), cmap=cmap, vmin=-1.0, vmax=0.25,
                        extent=[-1, 1, -1, 1])
         ax.set_title(lab, fontsize=10)
         ax.set_aspect("equal")

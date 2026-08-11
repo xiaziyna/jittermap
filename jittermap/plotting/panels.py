@@ -6,26 +6,43 @@ from matplotlib.gridspec import GridSpec
 
 from jittermap.plotting.render import draw_latlon_grid, render_surface_fast
 
+# Star-like default: bright photosphere, dark starspots.
+DEFAULT_CMAP = "inferno"
+# Normalized surface values span [-1 (darkest spot), ~small positive];
+# placing the zero-level background high in the colormap makes the disk
+# glow while spots stay dark.
+DEFAULT_CLIM = (-1.0, 0.25)
 
-def normalize_map(m, negate=True):
-    """Normalize a rendered map to unit max amplitude; negate by default
-    so dark spots appear red in the RdBu_r colormap."""
+
+def normalize_map(m, negate=False):
+    """Normalize a rendered map to unit max amplitude (spots are negative
+    brightness; keep the sign so sequential star-like colormaps render the
+    background bright and the spots dark). Set negate=True for diverging
+    colormaps such as RdBu_r where spots should map to the red end."""
     peak = np.nanmax(np.abs(m))
     if peak == 0:
         return m
     return (-m if negate else m) / peak
 
 
-def render_panel(ax, m, title, inclination, cmap="RdBu_r", grid=True):
-    """Render a single projected-surface panel with lat/lon overlay."""
-    ax.imshow(np.flip(m, axis=0), cmap=cmap, extent=[-1, 1, -1, 1])
+def render_panel(ax, m, title, inclination, cmap=DEFAULT_CMAP, grid=True,
+                 clim=DEFAULT_CLIM):
+    """Render a single projected-surface panel with lat/lon overlay.
+
+    Expects a map normalized by normalize_map (background near 0, spots
+    toward -1). Pass clim=None to autoscale instead.
+    """
+    vmin, vmax = clim if clim is not None else (None, None)
+    ax.imshow(np.flip(m, axis=0), cmap=cmap, extent=[-1, 1, -1, 1],
+              vmin=vmin, vmax=vmax)
     ax.set_title(title, fontsize=10)
     ax.set_aspect("equal")
     ax.set_xticks([-1, 0, 1])
     ax.set_yticks([-1, 0, 1])
     ax.tick_params(labelsize=8)
     if grid:
-        draw_latlon_grid(ax, inclination_rad=inclination)
+        draw_latlon_grid(ax, inclination_rad=inclination, color="w",
+                         alpha=0.3)
 
 
 def comparison_figure(true_coeffs, results, l_true, inc_true,
