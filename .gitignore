@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+.pytest_cache/
+.ipynb_checkpoints/
+*.gif
+*.mp4
+!images/*.gif
+!images/*.png
+docs/_build/
+.coverage
+htmlcov/

@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the accompanying paper."
+title: "jittermap: stellar surface mapping from astrometric jitter and photometry"
+authors:
+  - family-names: Taaki
+    given-names: Jamila S.
+version: 0.1.0
+license: GPL-3.0
+repository-code: "https://github.com/xiaziyna/jittermap"
+preferred-citation:
+  type: article
+  title: "Using Astrometry to Break Degeneracies in Stellar Surface Mapping"
+  authors:
+    - family-names: Taaki
+      given-names: Jamila S.
+    - family-names: Corrales
+      given-names: Lia
+    - family-names: Hero
+      given-names: Alfred O.
+      name-suffix: III
+  journal: "The Astrophysical Journal"
+  year: 2026
+  identifiers:
+    - type: other
+      value: "arXiv:2601.11737"

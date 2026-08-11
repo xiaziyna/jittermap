@@ -1,0 +1,138 @@
+# jittermap
+
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
+## Overview
+
+Developed by Jamila Taaki (University of Michigan).
+
+**jittermap** is a Python library for stellar surface mapping from astrometric
+jitter and photometry. Astrometric jitter arises when starspots on a rotating
+stellar surface move in and out of view, shifting the observed photocenter;
+this jitter is a noise floor for detecting small exoplanets, but it also
+carries information about the stellar surface itself.
+
+jittermap implements a linear forward model for the astrometric jitter and
+photometric signals of a rotating star in a spherical-harmonic coordinate
+system, together with the inverse problem: reconstructing surface-brightness
+maps (and estimating the stellar inclination) from those time series.
+Astrometry and photometry probe complementary halves of the surface —
+photometry measures even-degree spherical harmonic modes symmetric about the
+equator, while astrometry measures odd-degree modes — so their joint use
+breaks degeneracies inherent to either channel alone.
+
+The forward model factors per spherical-harmonic degree `l` as
+
+    y_c(t) = Re[ B(t) C(beta) a_c,l  s_l ],     c in {x, y, photometry}
+
+where `s` are the complex SH surface coefficients, `a_c,l` are
+visible-hemisphere moment kernels, and `B(t)`, `C(beta)` are Wigner-D
+rotation blocks for the spin phase and inclination. Both rotation blocks are
+phase-diagonal modulations of a single fixed matrix per degree,
+`M_l = D^l(pi/2, pi/2, pi/2)`, which jittermap ships as precomputed numeric
+tables up to **L = 40** — beyond the practical degree limit of pixel- or
+`starry`-based approaches, with no symbolic algebra at runtime.
+
+## Installation
+
+```bash
+pip install -e .
+```
+
+Dependencies: numpy, scipy, sympy, matplotlib.
+
+## Quickstart
+
+```python
+import numpy as np
+import jittermap as jm
+
+# A two-spot surface at degree L=10 with light small-scale texture
+s_true = jm.multispot_surface([(30, 150, 12.0), (-15, 260, 8.0)], l_max=10,
+                              texture_amplitude=0.007, texture_seed=3)
+
+# Forward model: N uniform samples over one rotation, inclination 0.6 rad
+times = np.linspace(0, 2 * np.pi, 100, endpoint=False)
+fm = jm.ForwardModel(times, l_max=10)
+y = fm.observe(s_true, inclination=0.6, channels="xyp", stacked=False)
+
+# Inverse problem: joint astrometry + photometry MAP reconstruction,
+# with the inclination estimated by profile grid search
+result = jm.reconstruct(y, times, l_max=10, channels="xyp")
+print(result.inclination)   # ~0.6
+s_hat = result.s_hat
+```
+
+Reconstruction from single channels (`channels="xy"` for astrometry only,
+`"p"` for photometry only) exposes the null spaces of each: photometry alone
+cannot localize spots in latitude against the inclination ambiguity, while
+astrometry alone accesses the odd-degree modes photometry misses.
+
+<p align="center">
+  <img src="images/reconstruction_demo.png" alt="Truth vs joint, astrometry-only and photometry-only reconstructions">
+</p>
+
+## Organization
+
+<pre>
+jittermap
+├── jittermap
+│   ├── harmonics          # surface representation
+│   │   ├── indexing.py    #   SH indexing, real-surface transform
+│   │   ├── spots.py       #   analytic cap starspots (no external deps)
+│   │   └── surfaces.py    #   multi-spot maps, GMRF random textures
+│   ├── forward            # surface -> observables
+│   │   ├── kernels.py     #   astrometric + photometric moment kernels
+│   │   ├── wigner.py      #   Wigner rotation operators (numeric M_l cache)
+│   │   ├── design.py      #   design matrices; fast Vandermonde path
+│   │   ├── fourier.py     #   frequency-comb compression of uniform sampling
+│   │   └── build_cache.py #   cache builder (python -m jittermap.forward.build_cache)
+│   ├── inference          # observables -> surface
+│   │   ├── inversion.py   #   GMRF-regularized MAP / ridge solvers
+│   │   ├── inclination.py #   profile-objective inclination estimation
+│   │   └── reconstruct.py #   high-level joint reconstruction
+│   ├── plotting
+│   │   ├── render.py      #   visible-hemisphere rendering
+│   │   ├── panels.py      #   truth-vs-reconstruction comparison figures
+│   │   └── animate.py     #   spin animations
+│   └── data               # shipped caches: Wigner M_l to L=40, kernels
+├── examples
+├── tests
+└── docs
+</pre>
+
+## Precomputed caches
+
+The Wigner tables (`data/wigner`, ~0.4 MB) are exact: each `M_l` is computed
+from the Wigner sum formula at `beta = pi/2` in 50-digit arithmetic and
+rounded once to complex128. Kernel tables (`data/kernels`) cover the
+astrometric and photometric moments to `l = 40`. Higher degrees are computed
+on demand and cached per user, or in bulk via
+
+```bash
+python -m jittermap.forward.build_cache --lmax 60
+python -m jittermap.forward.build_cache --photo 60
+```
+
+## Tests
+
+```bash
+python -m pytest tests/
+```
+
+The suite cross-validates the kernels against independent symbolic and
+brute-force computations, the rotation operators against direct Wigner-D
+evaluation, the fast design-matrix path against a reference implementation,
+and end-to-end noiseless recovery on the identifiable subspace.
+
+## Citing
+
+If you use jittermap in your research, please cite:
+
+> Taaki, J. S., Corrales, L., & Hero, A. O. III,
+> "Using Astrometry to Break Degeneracies in Stellar Surface Mapping",
+> ApJ (2026). arXiv:2601.11737
+
+## License
+
+jittermap is released under the [GNU General Public License v3.0](LICENSE).
