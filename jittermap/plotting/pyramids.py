@@ -15,7 +15,7 @@ from jittermap.forward.wigner import wigner_M, rotation_funcs
 
 
 def coefficient_pyramid(s, l_max):
-    """Pyramid array of |s_{l,m}| from a flat coefficient vector."""
+    """Pyramid array of abs(s_lm) from a flat coefficient vector."""
     sh = SHIndexer(l_max)
     grid_size = 2 * l_max + 1
     pyramid = np.full((l_max + 1, grid_size), np.nan, dtype=float)
@@ -26,7 +26,7 @@ def coefficient_pyramid(s, l_max):
 
 
 def kernel_pyramid(A_lm, l_max):
-    """Pyramid array of |k_{l,m}| from a kernel table of shape
+    """Pyramid array of abs(k_lm) from a kernel table of shape
     (l_max+1, 2*l_max+1) (compute_A_lm / compute_A_lm_photo output)."""
     grid_size = 2 * l_max + 1
     pyramid = np.full((l_max + 1, grid_size), np.nan, dtype=float)
@@ -39,7 +39,7 @@ def kernel_pyramid(A_lm, l_max):
 
 def rotated_kernel_pyramid(l_max, inclination, A_lm, threshold=0.0,
                            omega=1.0):
-    """Pyramid of the inclination-rotated kernel magnitudes |c^l_m| with
+    """Pyramid of the inclination-rotated kernel magnitudes abs(c_lm) with
     c^l = M_l C(beta) k^h_l — the diagonal entries of the B_beta operator
     (paper Eq. A9). Cells below threshold are zeroed (rendered white)."""
     grid_size = 2 * l_max + 1
