@@ -1,20 +1,25 @@
 """Wigner rotation operators for a spinning star viewed at inclination beta.
 
-Convention (as in the accompanying paper): the design matrix factors as
+Convention (as in the accompanying paper): the design matrix factors
+per degree l as::
+
     D(t, beta) = B(t) C(beta) a_l
-per degree l, with the two rotation blocks defined through Wigner D
-matrices in the sympy.physics.quantum.spin convention,
+
+with the two rotation blocks defined through Wigner D matrices in the
+sympy.physics.quantum.spin convention::
+
     B(t)     = D^l(omega t + pi/2, pi/2, pi/2)
     C(beta)  = D^l(-beta + pi/2,   pi/2, pi/2)
+
 where rows are indexed by m = -l..l and columns by m' = -l..l.
 
 Since D^l_{m m'}(alpha, beta, gamma) = e^{-i m alpha} d^l_{m m'}(beta)
 e^{-i m' gamma} and the middle angle is fixed at pi/2, both blocks are
-phase-diagonal modulations of a single fixed matrix per degree,
-    M_l = D^l(pi/2, pi/2, pi/2),   (M_l)_{m m'} = (-i)^{m+m'} d^l_{m m'}(pi/2),
-via
+phase-diagonal modulations of a single fixed matrix per degree::
+
+    M_l = D^l(pi/2, pi/2, pi/2),   (M_l)_{m m'} = (-i)^{m+m'} d^l_{m m'}(pi/2)
     B(t)    = diag(e^{-i m omega t}) M_l
-    C(beta) = diag(e^{+i m beta})   M_l.
+    C(beta) = diag(e^{+i m beta})   M_l
 
 The on-disk cache therefore stores only the numeric M_l (complex128),
 computed from the exact Wigner sum formula at beta = pi/2 in high-precision

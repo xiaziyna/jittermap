@@ -10,10 +10,10 @@ Tables are assembled per maximum degree lp as arrays A_lm of shape
 lp+m (m = -ln..ln). Selection rule: kernels vanish for even l > 2.
 
 Three independent computation paths are provided, used to cross-validate
-one another in the test suite:
-  - SciPy quadrature (compute_A_lm / compute_A_lm_photo)  [default]
-  - SymPy symbolic radial integrals with closed-form azimuthal integrals
-  - brute-force numeric summation over a projected-disk grid
+one another in the test suite: SciPy quadrature (compute_A_lm /
+compute_A_lm_photo, the default), SymPy symbolic radial integrals with
+closed-form azimuthal integrals, and brute-force numeric summation over
+a projected-disk grid.
 
 Results are cached in memory and on disk (packaged tables first, then a
 writable user cache).

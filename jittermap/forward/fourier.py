@@ -2,13 +2,16 @@
 
 For uniform sampling of a full rotation period (times t_n = 2*pi*n/(N*omega),
 n = 0..N-1), the forward model is a frequency comb: each channel's signal
-contains only the harmonics m = -L..L of the rotation rate,
-    y(t) = sum_{l} sum_{m} e^{-i m omega t} v^{(l)}_m s_{l,m},
-    v^{(l)} = M_l C(beta) a_l.
+contains only the harmonics m = -L..L of the rotation rate::
+
+    y(t) = sum_{l} sum_{m} e^{-i m omega t} v^{(l)}_m s_{l,m}
+    v^{(l)} = M_l C(beta) a_l
+
 Projecting onto the comb therefore compresses each channel from N samples
 to 2L+1 Fourier coefficients with no information loss, and the design
-matrix becomes block-diagonal-by-frequency:
-    F[m, (l, m')] = v^{(l)}_m * delta_{m m'}.
+matrix becomes block-diagonal-by-frequency::
+
+    F[m, (l, m')] = v^{(l)}_m * delta_{m m'}
 
 The compressed coefficients satisfy the conjugate symmetry
 f_{-m} = conj(f_m) for real signals, so they can be repacked into 2L+1
@@ -53,7 +56,7 @@ def fourier_design_matrix(l_max, inclination, A_lm, omega=1.0):
     """Fourier-domain design matrix F of shape (2L+1, (L+1)^2) such that
     compress(D(times, beta) @ s) == F @ s for uniform full-period sampling.
 
-    Row m holds v^{(l)}_m at column (l, m) for every degree l >= |m|.
+    Row m holds v^{(l)}_m at column (l, m) for every degree l >= abs(m).
     """
     L = l_max
     sh = SHIndexer(l_max=L)

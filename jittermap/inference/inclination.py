@@ -1,8 +1,10 @@
 """Inclination estimation by penalized-residual grid search.
 
 The inclination beta enters the design matrix nonlinearly; it is
-estimated by minimizing the (regularized) profile objective
+estimated by minimizing the (regularized) profile objective::
+
     J(beta) = || y - D(beta) s_hat(beta) ||^2 + lam * s_hat^H Q s_hat
+
 over beta with a bounded scalar minimizer, where s_hat(beta) is the
 ridge/MAP solution at that inclination.
 """

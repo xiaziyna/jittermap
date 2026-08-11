@@ -1,18 +1,19 @@
 """Design matrix construction for the astrometric / photometric forward model.
 
 The measured signal for a channel with kernel table A_lm is
-    y = D(times, beta) s,        D[n, (l,m)] built per degree l as
+y = D(times, beta) s, with the rows built per degree l as::
+
     D_l = diag(e^{-i m omega t_n}) M_l C(beta) a_l
+
 using the Vandermonde decomposition B(t) = diag(e^{-i m omega t}) B(0)
 (see jittermap.forward.wigner). For a real surface s the signal y is real
 up to numerical precision.
 
-Two paths are provided:
-  - design_matrix_reference: direct per-timepoint evaluation (slow, used
-    as ground truth in tests)
-  - precompute_vandermonde + design_matrix_vandermonde: the fast path,
-    O(N L^2) elementwise operations with no per-timepoint matmul
-and a high-level ForwardModel class wrapping channel assembly.
+Two paths are provided — design_matrix_reference (direct per-timepoint
+evaluation; slow, the ground truth in tests) and precompute_vandermonde +
+design_matrix_vandermonde (the fast path: O(N L^2) elementwise operations
+with no per-timepoint matmul) — plus a high-level ForwardModel class
+wrapping channel assembly.
 """
 
 import numpy as np
