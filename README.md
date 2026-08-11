@@ -7,7 +7,18 @@
 Developed by Jamila Taaki (University of Michigan).
 
 **jittermap** is a Python library for stellar surface mapping from astrometric
-jitter and photometry. Astrometric jitter arises when starspots on a rotating
+jitter and photometry. It is the reference implementation of the methods
+developed in the paper:
+
+> **Taaki, J. S., Corrales, L., & Hero, A. O. III (2026),
+> "Using Astrometry to Break Degeneracies in Stellar Surface Mapping",
+> The Astrophysical Journal. arXiv:2601.11737**
+
+The forward model, the astrometric/photometric moment kernels, the Wigner
+rotation formulation, the identifiability results, and the reconstruction
+approach implemented here are all derived in that paper. **If you use
+jittermap — or code or results derived from it — in published work, please
+cite the paper** (see [Citing](#citing) below). Astrometric jitter arises when starspots on a rotating
 stellar surface move in and out of view, shifting the observed photocenter;
 this jitter is a noise floor for detecting small exoplanets, but it also
 carries information about the stellar surface itself.
@@ -127,11 +138,28 @@ and end-to-end noiseless recovery on the identifiable subspace.
 
 ## Citing
 
-If you use jittermap in your research, please cite:
+jittermap is based on the work in Taaki, Corrales & Hero (2026). If you use
+this library, any part of its code, or results produced with it in your
+research, please cite the paper:
 
 > Taaki, J. S., Corrales, L., & Hero, A. O. III,
 > "Using Astrometry to Break Degeneracies in Stellar Surface Mapping",
-> ApJ (2026). arXiv:2601.11737
+> The Astrophysical Journal (2026). arXiv:2601.11737
+
+```bibtex
+@article{Taaki2026jittermap,
+  author  = {Taaki, Jamila S. and Corrales, Lia and Hero, Alfred O., III},
+  title   = {Using Astrometry to Break Degeneracies in Stellar Surface Mapping},
+  journal = {The Astrophysical Journal},
+  year    = {2026},
+  eprint  = {2601.11737},
+  archivePrefix = {arXiv}
+}
+```
+
+A machine-readable citation is provided in [`CITATION.cff`](CITATION.cff);
+GitHub's "Cite this repository" button uses it directly. jittermap is GPL-3.0
+licensed: derivative works must retain the copyright and license notices.
 
 ## License
 

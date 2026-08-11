@@ -22,6 +22,11 @@ directory for worked scripts.
 Reference
 ---------
 
-If you use jittermap, please cite Taaki, Corrales & Hero (2026),
-"Using Astrometry to Break Degeneracies in Stellar Surface Mapping",
-ApJ, arXiv:2601.11737.
+jittermap is the reference implementation of the methods developed in:
+
+    Taaki, J. S., Corrales, L., & Hero, A. O. III (2026),
+    "Using Astrometry to Break Degeneracies in Stellar Surface Mapping",
+    The Astrophysical Journal. arXiv:2601.11737
+
+If you use jittermap, any part of its code, or results produced with it
+in published work, please cite this paper.

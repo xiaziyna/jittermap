@@ -1,5 +1,13 @@
 """jittermap: stellar surface mapping from astrometric jitter and photometry.
 
+Reference implementation of the methods developed in:
+
+    Taaki, J. S., Corrales, L., & Hero, A. O. III (2026),
+    "Using Astrometry to Break Degeneracies in Stellar Surface Mapping",
+    The Astrophysical Journal. arXiv:2601.11737
+
+If you use jittermap in published work, please cite this paper.
+
 The forward model maps a stellar surface, expanded in complex spherical
 harmonics s_{l,m}, to time series of the astrometric photocenter shift
 (x, y) and the disk-integrated photometric flux as the star rotates at
