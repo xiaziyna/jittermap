@@ -50,8 +50,7 @@ visible-hemisphere moment kernels, and `B(t)`, `C(beta)` are Wigner-D
 rotation blocks for the spin phase and inclination. Both rotation blocks are
 phase-diagonal modulations of a single fixed matrix per degree,
 `M_l = D^l(pi/2, pi/2, pi/2)`, which jittermap ships as precomputed numeric
-tables up to **L = 40** — beyond the practical degree limit of pixel- or
-`starry`-based approaches, with no symbolic algebra at runtime.
+tables up to **L = 40**, with no symbolic algebra or compilation at runtime.
 
 ## Fast, precise, and built for sweeps
 
@@ -70,9 +69,20 @@ Measured timings (single CPU core):
 | surface + inclination fit | ~2 s |
 | forward model at L=40 | ~0.5 s |
 
-For context: no other public tool computes spot-induced astrometric jitter
-at all, and photometry-only mappers such as `starry` are limited to lower
-harmonic degrees. This throughput is what powers the reconstruction
+For context, the same photometric operator against `starry` v1.2 (the
+standard light-curve mapping tool), both warmed up, 100 epochs
+(`examples/benchmark_vs_starry.py`):
+
+| degree | jittermap | starry |
+|---|---|---|
+| L = 10 | 0.4 ms | 1.5 ms |
+| L = 30 | 2.3 ms | 16 ms |
+| L = 40 | 30 ms | 42 ms |
+
+jittermap is also free of starry's seconds-long compile on first use and
+runs on plain numpy/scipy (no theano stack) — and, more importantly,
+`starry` has no astrometric channel at all: the jitter half of the model
+is unique to jittermap. This throughput is what powers the reconstruction
 galleries in the paper and the Monte Carlo studies the model was built
 for — thousands of candidate surfaces, inclinations, and noise
 realizations, not a single fit.
