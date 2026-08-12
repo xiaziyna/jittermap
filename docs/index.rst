@@ -45,17 +45,16 @@ in published work, please cite the paper above.**
 Why it is fast and precise
 --------------------------
 
-jittermap's computation is organized around exactness-by-precomputation:
-Wigner rotation tables are derived once from the exact sum formula in
-50-digit arithmetic and shipped as plain numeric arrays (no symbolic
-algebra or pixel grids at runtime), and the per-harmonic astrometric and
-photometric kernels are analytic integrals cached to a relative error of
-order :math:`10^{-15}`. Combined with the Vandermonde factorization of the
-design matrix, a full three-channel forward model assembles in tens of
-milliseconds and a complete surface-plus-inclination fit runs in about two
-seconds (~30 ms at known inclination) — fast enough to explore broad
-spaces of candidate surfaces, spot configurations, and noise realizations
-rather than fitting a single model.
+All the heavy math is precomputed: the rotation and response tables that
+map a spotted star to its signals are derived exactly once (50-digit
+arithmetic, shipped to :math:`L = 40`) so that simulating or fitting a
+star at runtime is just a few small matrix products, exact to double
+precision. A full surface-plus-inclination fit runs in about two seconds
+(~30 ms at known inclination) — fast enough to sweep thousands of
+candidate surfaces, spot configurations, and noise realizations rather
+than fitting a single model. This throughput powers the paper's
+reconstruction galleries and the Monte Carlo studies the model was built
+for.
 
 .. toctree::
    :maxdepth: 1

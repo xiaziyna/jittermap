@@ -53,31 +53,29 @@ phase-diagonal modulations of a single fixed matrix per degree,
 tables up to **L = 40** — beyond the practical degree limit of pixel- or
 `starry`-based approaches, with no symbolic algebra at runtime.
 
-## Performance and precision
+## Fast, precise, and built for sweeps
 
-The way jittermap organizes the computation buys accuracy and speed at the
-same time:
+All the heavy math is done ahead of time: the tables that describe how a
+rotating star maps to its signals are computed exactly, once, and shipped
+with the library. At runtime, simulating or fitting a star is just a few
+small matrix products — with no loss of accuracy (results are exact to
+double precision at any degree up to the shipped L = 40).
 
-* **Exact precomputed rotations.** The Wigner rotation tables are derived
-  once from the exact sum formula in 50-digit arithmetic and shipped as
-  plain numeric arrays — every rotation the library ever applies is correct
-  to the last bit of double precision, with no symbolic algebra, recursions,
-  or pixel grids at runtime.
-* **Analytic kernels.** The astrometric and photometric response of every
-  harmonic is an analytic integral evaluated to a relative error of order
-  1e-15 and cached — the forward model is exactly linear and essentially
-  exact at any degree up to the shipped L = 40.
-* **Separable, factorized design.** The Vandermonde decomposition assembles
-  a full three-channel design matrix in tens of milliseconds (L = 10,
-  N = 100: ~20 ms; even L = 40 takes ~0.5 s), and the frequency-comb
-  structure compresses N observations to 2L+1 numbers losslessly.
+Measured timings (single CPU core):
 
-In practice a complete surface + inclination fit takes about two seconds,
-and a surface fit at known inclination ~30 ms — fast enough to sweep
-thousands of candidate surfaces, spot configurations, inclinations, or
-noise realizations rather than fitting one model and hoping. That
-throughput is what powers the reconstruction galleries in the paper and the
-Monte Carlo studies the model was built for.
+| task | time |
+|---|---|
+| simulate astrometry + photometry (L=10, 100 epochs) | ~20 ms |
+| surface fit, known inclination | ~30 ms |
+| surface + inclination fit | ~2 s |
+| forward model at L=40 | ~0.5 s |
+
+For context: no other public tool computes spot-induced astrometric jitter
+at all, and photometry-only mappers such as `starry` are limited to lower
+harmonic degrees. This throughput is what powers the reconstruction
+galleries in the paper and the Monte Carlo studies the model was built
+for — thousands of candidate surfaces, inclinations, and noise
+realizations, not a single fit.
 
 ## Installation
 
