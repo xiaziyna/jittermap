@@ -11,7 +11,7 @@
 
 ## Overview
 
-Developed by Jamila Taaki (University of Michigan).
+Developed by Jamila Taaki (Space Telescope Science Institute).
 
 **jittermap** is a Python library for stellar surface mapping from astrometric
 jitter and photometry. It is the reference implementation of the methods
