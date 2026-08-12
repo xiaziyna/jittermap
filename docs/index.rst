@@ -10,7 +10,7 @@ jittermap
 
 Astrometric jitter arises when starspots on a rotating stellar surface move
 in and out of view, shifting the observed photocenter. This jitter is a
-limiting noise source for detecting small exoplanets around active stars —
+limiting noise source for detecting small exoplanets around active stars,
 but it also encodes the stellar surface. jittermap is the reference
 implementation of the methods developed in
 
@@ -30,14 +30,14 @@ disentangle spot jitter from true reflex motion.
 
 The library provides:
 
-* the **forward model** — analytic astrometric/photometric moment kernels,
+* the **forward model**: analytic astrometric/photometric moment kernels,
   Wigner-D rotations (precomputed numerically to :math:`L=40`), fast
   design-matrix assembly, and lossless Fourier-domain compression;
-* the **inverse problem** — GMRF-regularized MAP surface reconstruction
+* the **inverse problem**: GMRF-regularized MAP surface reconstruction
   from any subset of the x/y/photometry channels, with profile-objective
   estimation of the stellar inclination;
-* **surface generation** — analytic cap starspots and GMRF random textures;
-* **plotting** — hemisphere rendering, comparison panels, spin animations.
+* **surface generation**: analytic cap starspots and GMRF random textures;
+* **plotting**: hemisphere rendering, comparison panels, spin animations.
 
 **If you use jittermap, any part of its code, or results produced with it
 in published work, please cite the paper above.**

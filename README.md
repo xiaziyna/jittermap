@@ -24,7 +24,7 @@ developed in the paper:
 The forward model, the astrometric/photometric moment kernels, the Wigner
 rotation formulation, the identifiability results, and the reconstruction
 approach implemented here are all derived in that paper. **If you use
-jittermap — or code or results derived from it — in published work, please
+jittermap, or code or results derived from it, in published work, please
 cite the paper** (see [Citing](#citing) below).
 
 Astrometric jitter arises when starspots on a rotating stellar surface move
@@ -36,9 +36,9 @@ jittermap implements a linear forward model for the astrometric jitter and
 photometric signals of a rotating star in a spherical-harmonic coordinate
 system, together with the inverse problem: reconstructing surface-brightness
 maps (and estimating the stellar inclination) from those time series.
-Astrometry and photometry probe complementary halves of the surface —
-photometry measures even-degree spherical harmonic modes symmetric about the
-equator, while astrometry measures odd-degree modes — so their joint use
+Astrometry and photometry probe complementary halves of the surface:
+photometry measures even-degree spherical harmonic modes, symmetric about
+the equator, while astrometry measures odd-degree modes. Their joint use
 breaks degeneracies inherent to either channel alone.
 
 The forward model factors per spherical-harmonic degree `l` as
@@ -123,16 +123,16 @@ astrometry alone accesses the odd-degree modes photometry misses.
 Five executed notebook tutorials in [`notebooks/`](notebooks) walk through
 the library and reproduce the key results of the paper:
 
-1. **Surfaces** — spherical-harmonic representation, analytic cap spots,
+1. **Surfaces**: spherical-harmonic representation, analytic cap spots,
    GMRF textures, rendering at different inclinations.
-2. **Forward model** — astrometric jitter and photometric signals vs.
+2. **Forward model**: astrometric jitter and photometric signals vs.
    inclination and spot latitude (paper Figs. 2–3), including the pole-on
    circularization worst case.
-3. **Kernels** — the odd/even selection rules, and a machine-precision
+3. **Kernels**: the odd/even selection rules, and a machine-precision
    demonstration of the photometric null space that astrometry breaks.
-4. **Reconstruction** — joint vs. single-channel MAP inversion, noise and
+4. **Reconstruction**: joint vs. single-channel MAP inversion, noise and
    regularization, and the identifiable subspace.
-5. **Inclination & Fourier** — the profile objective (photometric
+5. **Inclination & Fourier**: the profile objective (photometric
    inclination ambiguity made visible) and lossless frequency-comb
    compression.
 
