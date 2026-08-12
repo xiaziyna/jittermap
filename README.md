@@ -135,6 +135,9 @@ the library and reproduce the key results of the paper:
 5. **Inclination & Fourier**: the profile objective (photometric
    inclination ambiguity made visible) and lossless frequency-comb
    compression.
+6. **Truncation**: a sharp L = 40 surface and its L = 20 truncation
+   produce the same observable signals to a fraction of a percent, so a
+   modest fit degree captures everything the data can see.
 
 The full documentation (theory summary with the paper's equations mapped to
 the API, tutorials, examples, API reference) builds with sphinx from

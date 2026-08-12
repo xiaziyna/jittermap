@@ -73,6 +73,7 @@ model was built for require.
    tutorials/03_kernels_complementarity
    tutorials/04_reconstruction
    tutorials/05_inclination_and_fourier
+   tutorials/06_truncation
 
 .. toctree::
    :maxdepth: 2
