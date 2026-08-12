@@ -71,7 +71,10 @@ Measured timings (single CPU core):
 
 Everything runs on plain numpy/scipy — no compilation step, no heavyweight
 dependency stack — and jittermap models the astrometric jitter channel,
-which photometry-only surface-mapping tools do not provide. This
+which photometry-only surface-mapping tools do not provide. For the
+channel that can be compared, jittermap assembles the L = 30 photometric
+forward operator about **7x faster** than `starry` v1.2 (2.3 ms vs 16 ms,
+both warmed up; reproduce with `examples/benchmark_vs_starry.py`). This
 throughput is what powers the reconstruction galleries in the paper and
 the Monte Carlo studies the model was built for — thousands of candidate
 surfaces, inclinations, and noise realizations, not a single fit.
