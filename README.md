@@ -69,23 +69,12 @@ Measured timings (single CPU core):
 | surface + inclination fit | ~2 s |
 | forward model at L=40 | ~0.5 s |
 
-For context, the same photometric operator against `starry` v1.2 (the
-standard light-curve mapping tool), both warmed up, 100 epochs
-(`examples/benchmark_vs_starry.py`):
-
-| degree | jittermap | starry |
-|---|---|---|
-| L = 10 | 0.4 ms | 1.5 ms |
-| L = 30 | 2.3 ms | 16 ms |
-| L = 40 | 30 ms | 42 ms |
-
-jittermap is also free of starry's seconds-long compile on first use and
-runs on plain numpy/scipy (no theano stack) — and, more importantly,
-`starry` has no astrometric channel at all: the jitter half of the model
-is unique to jittermap. This throughput is what powers the reconstruction
-galleries in the paper and the Monte Carlo studies the model was built
-for — thousands of candidate surfaces, inclinations, and noise
-realizations, not a single fit.
+Everything runs on plain numpy/scipy — no compilation step, no heavyweight
+dependency stack — and jittermap models the astrometric jitter channel,
+which photometry-only surface-mapping tools do not provide. This
+throughput is what powers the reconstruction galleries in the paper and
+the Monte Carlo studies the model was built for — thousands of candidate
+surfaces, inclinations, and noise realizations, not a single fit.
 
 ## Installation
 
