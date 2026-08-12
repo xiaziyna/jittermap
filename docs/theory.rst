@@ -2,7 +2,7 @@ Model and background
 ====================
 
 This page summarizes the forward model and the identifiability results from
-the accompanying paper (Taaki, Corrales & Hero 2026, ApJ, arXiv:2601.11737),
+the accompanying paper (Taaki, Corrales & Hero 2026, ApJ 1003, 226),
 and maps the paper's notation onto the library API. Equation numbers refer
 to the paper.
 
@@ -215,9 +215,9 @@ and longitude. The high-level entry point
 References
 ----------
 
-* Taaki, J. S., Corrales, L., & Hero, A. O. III 2026, ApJ,
+* Taaki, J. S., Corrales, L., & Hero, A. O. III 2026, ApJ 1003, 226,
   "Using Astrometry to Break Degeneracies in Stellar Surface Mapping",
-  arXiv:2601.11737
+  doi:10.3847/1538-4357/ae66f7 (arXiv:2601.11737)
 * Cowan, N. B., Fuentes, P. A., & Haggard, H. M. 2013, MNRAS 432, 2465 —
   photometric null space of light-curve inversion.
 * Luger, R., Foreman-Mackey, D., & Hedges, C. 2021, AJ 162, 123 —

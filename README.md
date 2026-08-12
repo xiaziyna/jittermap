@@ -11,7 +11,7 @@
 
 ## Overview
 
-Developed by Jamila Taaki (Space Telescope Science Institute).
+Developed by Jamila Taaki (STScI).
 
 **jittermap** is a Python library for stellar surface mapping from astrometric
 jitter and photometry. It is the reference implementation of the methods
@@ -19,7 +19,7 @@ developed in the paper:
 
 > **Taaki, J. S., Corrales, L., & Hero, A. O. III (2026),
 > "Using Astrometry to Break Degeneracies in Stellar Surface Mapping",
-> The Astrophysical Journal. arXiv:2601.11737**
+> ApJ 1003, 226. doi:10.3847/1538-4357/ae66f7 (arXiv:2601.11737)**
 
 The forward model, the astrometric/photometric moment kernels, the Wigner
 rotation formulation, the identifiability results, and the reconstruction
@@ -203,10 +203,10 @@ jittermap is based on the work in Taaki, Corrales & Hero (2026). If you use
 this library, any part of its code, or results produced with it in your
 research, please cite the paper:
 
-> Taaki, J. S., Corrales, L., & Hero, A. O. III,
+> Taaki, J. S., Corrales, L., & Hero, A. O. III 2026,
 > "Using Astrometry to Break Degeneracies in Stellar Surface Mapping",
-> The Astrophysical Journal (2026). arXiv:2601.11737,
-> doi:10.48550/arXiv.2601.11737
+> The Astrophysical Journal, 1003, 226.
+> doi:10.3847/1538-4357/ae66f7 (arXiv:2601.11737)
 
 ```bibtex
 @article{Taaki2026jittermap,
@@ -214,9 +214,12 @@ research, please cite the paper:
   title   = {Using Astrometry to Break Degeneracies in Stellar Surface Mapping},
   journal = {The Astrophysical Journal},
   year    = {2026},
+  volume  = {1003},
+  number  = {2},
+  pages   = {226},
+  doi     = {10.3847/1538-4357/ae66f7},
   eprint  = {2601.11737},
-  archivePrefix = {arXiv},
-  doi     = {10.48550/arXiv.2601.11737}
+  archivePrefix = {arXiv}
 }
 ```
 

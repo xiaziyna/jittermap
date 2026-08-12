@@ -14,11 +14,11 @@ limiting noise source for detecting small exoplanets around active stars,
 but it also encodes the stellar surface. jittermap is the reference
 implementation of the methods developed in
 
-    Taaki, J. S., Corrales, L., & Hero, A. O. III (2026),
+    Taaki, J. S., Corrales, L., & Hero, A. O. III 2026,
     *"Using Astrometry to Break Degeneracies in Stellar Surface Mapping"*,
-    The Astrophysical Journal. `arXiv:2601.11737
-    <https://arxiv.org/abs/2601.11737>`_,
-    doi:10.48550/arXiv.2601.11737
+    ApJ 1003, 226. `doi:10.3847/1538-4357/ae66f7
+    <https://doi.org/10.3847/1538-4357/ae66f7>`_
+    (`arXiv:2601.11737 <https://arxiv.org/abs/2601.11737>`_)
 
 which derives a linear spherical-harmonic forward model for the rotational
 astrometric signal of an arbitrary stellar surface at any inclination, and

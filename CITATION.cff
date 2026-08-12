@@ -20,8 +20,12 @@ preferred-citation:
       name-suffix: III
   journal: "The Astrophysical Journal"
   year: 2026
+  volume: 1003
+  issue: "2"
+  start: 226
+  doi: "10.3847/1538-4357/ae66f7"
   identifiers:
     - type: doi
-      value: "10.48550/arXiv.2601.11737"
+      value: "10.3847/1538-4357/ae66f7"
     - type: other
       value: "arXiv:2601.11737"
