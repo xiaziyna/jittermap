@@ -42,19 +42,19 @@ The library provides:
 **If you use jittermap, any part of its code, or results produced with it
 in published work, please cite the paper above.**
 
-Why it is fast and precise
---------------------------
+Performance
+-----------
 
 All the heavy math is precomputed: the rotation and response tables that
 map a spotted star to its signals are derived exactly once (50-digit
 arithmetic, shipped to :math:`L = 40`) so that simulating or fitting a
 star at runtime is just a few small matrix products, exact to double
-precision. A full surface-plus-inclination fit runs in about two seconds
-(~30 ms at known inclination) — fast enough to sweep thousands of
-candidate surfaces, spot configurations, and noise realizations rather
-than fitting a single model. This throughput powers the paper's
-reconstruction galleries and the Monte Carlo studies the model was built
-for.
+precision. A full surface and inclination fit runs in about two seconds,
+and a surface fit at known inclination takes roughly 30 ms. That is fast
+enough to sweep thousands of candidate surfaces, spot configurations, and
+noise realizations rather than fitting a single model, which is what the
+reconstruction galleries in the paper and the Monte Carlo studies the
+model was built for require.
 
 .. toctree::
    :maxdepth: 1

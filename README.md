@@ -52,13 +52,13 @@ phase-diagonal modulations of a single fixed matrix per degree,
 `M_l = D^l(pi/2, pi/2, pi/2)`, which jittermap ships as precomputed numeric
 tables up to **L = 40**, with no symbolic algebra or compilation at runtime.
 
-## Fast, precise, and built for sweeps
+## Performance
 
-All the heavy math is done ahead of time: the tables that describe how a
-rotating star maps to its signals are computed exactly, once, and shipped
-with the library. At runtime, simulating or fitting a star is just a few
-small matrix products — with no loss of accuracy (results are exact to
-double precision at any degree up to the shipped L = 40).
+All of the heavy math is precomputed and cached. The Wigner rotation
+tables and the moment kernels ship with the package as exact numeric
+arrays (derived in 50-digit arithmetic, tabulated to L = 40), so the
+forward model and the inversion reduce to small dense matrix products at
+runtime and are exact to double precision.
 
 Measured timings (single CPU core):
 
@@ -69,15 +69,15 @@ Measured timings (single CPU core):
 | surface + inclination fit | ~2 s |
 | forward model at L=40 | ~0.5 s |
 
-Everything runs on plain numpy/scipy — no compilation step, no heavyweight
-dependency stack — and jittermap models the astrometric jitter channel,
-which photometry-only surface-mapping tools do not provide. For the
-channel that can be compared, jittermap assembles the L = 30 photometric
-forward operator about **7x faster** than `starry` v1.2 (2.3 ms vs 16 ms,
-both warmed up; reproduce with `examples/benchmark_vs_starry.py`). This
-throughput is what powers the reconstruction galleries in the paper and
-the Monte Carlo studies the model was built for — thousands of candidate
-surfaces, inclinations, and noise realizations, not a single fit.
+The package depends only on numpy, scipy, sympy, and matplotlib, with no
+compilation step. It models the astrometric jitter channel, which
+photometry-only mapping tools do not provide. On the photometric channel,
+where a direct comparison exists, it assembles the L = 30 forward
+operator about 7x faster than starry v1.2 (2.3 ms vs 16 ms, both warm;
+see `examples/benchmark_vs_starry.py`). This throughput is what makes the
+reconstruction galleries in the paper and the Monte Carlo studies the
+model was built for practical: thousands of candidate surfaces,
+inclinations, and noise realizations rather than a single fit.
 
 ## Installation
 
