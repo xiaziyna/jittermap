@@ -3,7 +3,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 <p align="center">
-  <img src="images/spin.gif" width="320" alt="A rotating spotted star rendered by jittermap">
+  <img src="images/spin.gif" width="680" alt="A Monte Carlo spotted star rotating at three labeled inclinations">
 </p>
 
 ## Overview

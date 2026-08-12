@@ -4,9 +4,9 @@ jittermap
 **Stellar surface mapping from astrometric jitter and photometry.**
 
 .. image:: _images_repo/spin.gif
-   :width: 320
+   :width: 680
    :align: center
-   :alt: A rotating spotted star rendered by jittermap
+   :alt: A Monte Carlo spotted star rotating at three labeled inclinations
 
 Astrometric jitter arises when starspots on a rotating stellar surface move
 in and out of view, shifting the observed photocenter. This jitter is a

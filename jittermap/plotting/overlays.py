@@ -28,17 +28,43 @@ class MeridianOverlay:
 
     def __init__(self, ax, inclination, omega=1.0, num_meridians=5,
                  axis_color="w", line_color="#dddddd",
-                 highlight_color="#ffd27f"):
+                 highlight_color="#ffd27f", parallels=0, lw=1.6,
+                 pole_marker=True):
         self.ax = ax
         self.inclination = inclination
         self.omega = omega
         self.num_meridians = num_meridians
         self.highlight_color = highlight_color
         self.line_color = line_color
+        self.lw = lw
         self.theta_range = np.linspace(0.0, np.pi, 80)
-        rot_axis = np.array([0.0, np.sin(inclination), np.cos(inclination)])
-        (self.axis_line,) = ax.plot([0.0, rot_axis[0]], [0.0, rot_axis[2]],
-                                    color=axis_color, lw=2)
+
+        # Projected spin axis: vertical, foreshortened to cos(beta); the
+        # visible pole sits at image position (0, cos(beta)).
+        pole_z = np.cos(inclination)
+        (self.axis_line,) = ax.plot([0.0, 0.0], [0.0, pole_z],
+                                    color=axis_color, lw=2.2,
+                                    solid_capstyle="round", zorder=5)
+        if pole_marker:
+            ax.plot([0.0], [pole_z], marker="o", ms=5, color=axis_color,
+                    zorder=6)
+
+        # Static parallels: latitude circles are invariant under the spin,
+        # so they are drawn once. Same geometry as draw_latlon_grid.
+        if parallels:
+            cb, sb = np.cos(inclination), np.sin(inclination)
+            Ry = np.array([[cb, 0, sb], [0, 1, 0], [-sb, 0, cb]])
+            phi = np.linspace(-np.pi, np.pi, 400)
+            for theta0 in np.linspace(np.pi / 6, 5 * np.pi / 6, parallels):
+                coords = np.vstack([np.sin(theta0) * np.cos(phi),
+                                    np.sin(theta0) * np.sin(phi),
+                                    np.cos(theta0) * np.ones_like(phi)])
+                rot = Ry @ coords
+                vis = rot[0] >= 0
+                if np.any(vis):
+                    ax.plot(rot[1, vis], rot[2, vis], color=line_color,
+                            alpha=0.35, lw=lw * 0.7, zorder=4)
+
         self.meridian_lines: List[plt.Line2D] = []
 
     def update(self, t):
@@ -71,10 +97,11 @@ class MeridianOverlay:
             if np.any(visible):
                 is_mid = idx == len(phi_offsets) // 2
                 color = self.highlight_color if is_mid else self.line_color
-                alpha_val = 0.9 if is_mid else 0.4
+                alpha_val = 0.95 if is_mid else 0.45
                 (line,) = self.ax.plot(x_rot[visible], z_rot[visible],
                                        color=color, alpha=alpha_val,
-                                       linewidth=1.6)
+                                       linewidth=self.lw * (1.25 if is_mid else 1.0),
+                                       zorder=5)
                 self.meridian_lines.append(line)
 
         return [self.axis_line, *self.meridian_lines]
