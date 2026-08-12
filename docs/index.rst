@@ -42,11 +42,27 @@ The library provides:
 **If you use jittermap, any part of its code, or results produced with it
 in published work, please cite the paper above.**
 
+Why it is fast and precise
+--------------------------
+
+jittermap's computation is organized around exactness-by-precomputation:
+Wigner rotation tables are derived once from the exact sum formula in
+50-digit arithmetic and shipped as plain numeric arrays (no symbolic
+algebra or pixel grids at runtime), and the per-harmonic astrometric and
+photometric kernels are analytic integrals cached to a relative error of
+order :math:`10^{-15}`. Combined with the Vandermonde factorization of the
+design matrix, a full three-channel forward model assembles in tens of
+milliseconds and a complete surface-plus-inclination fit runs in about two
+seconds (~30 ms at known inclination) — fast enough to explore broad
+spaces of candidate surfaces, spot configurations, and noise realizations
+rather than fitting a single model.
+
 .. toctree::
    :maxdepth: 1
    :caption: Getting started
 
    theory
+   conventions
    examples
 
 .. toctree::

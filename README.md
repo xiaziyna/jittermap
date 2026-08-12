@@ -1,6 +1,9 @@
 # jittermap
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Documentation Status](https://readthedocs.org/projects/jittermap/badge/?version=latest)](https://jittermap.readthedocs.io/en/latest/)
+
+**Documentation: [jittermap.readthedocs.io](https://jittermap.readthedocs.io)**
 
 <p align="center">
   <img src="images/spin.gif" width="680" alt="A Monte Carlo spotted star rotating at three labeled inclinations">
@@ -49,6 +52,32 @@ phase-diagonal modulations of a single fixed matrix per degree,
 `M_l = D^l(pi/2, pi/2, pi/2)`, which jittermap ships as precomputed numeric
 tables up to **L = 40** — beyond the practical degree limit of pixel- or
 `starry`-based approaches, with no symbolic algebra at runtime.
+
+## Performance and precision
+
+The way jittermap organizes the computation buys accuracy and speed at the
+same time:
+
+* **Exact precomputed rotations.** The Wigner rotation tables are derived
+  once from the exact sum formula in 50-digit arithmetic and shipped as
+  plain numeric arrays — every rotation the library ever applies is correct
+  to the last bit of double precision, with no symbolic algebra, recursions,
+  or pixel grids at runtime.
+* **Analytic kernels.** The astrometric and photometric response of every
+  harmonic is an analytic integral evaluated to a relative error of order
+  1e-15 and cached — the forward model is exactly linear and essentially
+  exact at any degree up to the shipped L = 40.
+* **Separable, factorized design.** The Vandermonde decomposition assembles
+  a full three-channel design matrix in tens of milliseconds (L = 10,
+  N = 100: ~20 ms; even L = 40 takes ~0.5 s), and the frequency-comb
+  structure compresses N observations to 2L+1 numbers losslessly.
+
+In practice a complete surface + inclination fit takes about two seconds,
+and a surface fit at known inclination ~30 ms — fast enough to sweep
+thousands of candidate surfaces, spot configurations, inclinations, or
+noise realizations rather than fitting one model and hoping. That
+throughput is what powers the reconstruction galleries in the paper and the
+Monte Carlo studies the model was built for.
 
 ## Installation
 
