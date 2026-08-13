@@ -42,12 +42,15 @@ def _cap_alm0(l_max, radius_rad, contrast=1.0, sigma_taper=True):
     # l = 0
     a_l0[0] = -contrast * np.sqrt(np.pi) * (1.0 - cos_r)
 
-    # l >= 1
-    for l in range(1, l_max + 1):
-        integral = (eval_legendre(l - 1, cos_r) - eval_legendre(l + 1, cos_r)) / (2 * l + 1)
-        a_l0[l] = -contrast * np.sqrt(np.pi * (2 * l + 1)) * integral
+    # l >= 1 (vectorized over degree)
+    if l_max >= 1:
+        l = np.arange(1, l_max + 1)
+        P = eval_legendre(np.arange(0, l_max + 2), cos_r)
+        integral = (P[l - 1] - P[l + 1]) / (2 * l + 1)
+        a_l0[1:] = -contrast * np.sqrt(np.pi * (2 * l + 1)) * integral
         if sigma_taper:
-            a_l0[l] *= _lanczos_sigma(l, l_max)
+            x = np.pi * l / (l_max + 1)
+            a_l0[1:] *= np.sin(x) / x
 
     return a_l0
 
@@ -79,16 +82,15 @@ def _rotate_axisymmetric(a_l0, lat_rad, lon_rad, l_max):
     This automatically satisfies conjugate symmetry for a real surface.
     """
     colat = np.pi / 2.0 - lat_rad  # colatitude
-    total = (l_max + 1) ** 2
-    coeffs = np.zeros(total, dtype=complex)
 
-    for l in range(l_max + 1):
-        for m in range(-l, l + 1):
-            idx = l * l + l + m  # standard (l,m) -> linear index
-            d_val = _wigner_d_m0(l, m, colat)
-            coeffs[idx] = np.exp(-1j * m * lon_rad) * d_val * a_l0[l]
+    # flat (l, m) index arrays for the standard l*l + l + m ordering,
+    # evaluated in one vectorized sph_harm call (see _wigner_d_m0)
+    l_arr = np.repeat(np.arange(l_max + 1), 2 * np.arange(l_max + 1) + 1)
+    m_arr = np.concatenate([np.arange(-l, l + 1) for l in range(l_max + 1)])
 
-    return coeffs
+    ylm = np.real(sph_harm(m_arr, l_arr, 0.0, colat))
+    d_val = np.sqrt(4.0 * np.pi / (2 * l_arr + 1)) * ylm
+    return np.exp(-1j * m_arr * lon_rad) * d_val * a_l0[l_arr]
 
 
 def generate_spot(lat_deg, lon_deg, radius_deg, l_max, contrast=1.0,
