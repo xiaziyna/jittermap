@@ -33,7 +33,7 @@ BETAS = [np.deg2rad(10), np.deg2rad(45), np.deg2rad(75)]
 BETA_LABELS = [r"$\beta = 10^\circ$ (near equator-on)",
                r"$\beta = 45^\circ$",
                r"$\beta = 75^\circ$ (near pole-on)"]
-SEED = 11
+SEED = 7
 OUT = "spin.gif"
 # ---------------------------------------------------------------------------
 
@@ -46,40 +46,69 @@ def _separation_deg(lat1, lon1, lat2, lon2):
     return float(np.rad2deg(np.arccos(np.clip(cos_sep, -1.0, 1.0))))
 
 
-def draw_monte_carlo_star(rng, f_spot=0.045, r_med=0.065, lognorm_sigma=0.5,
-                          r_min=0.061, lat_belt=(5.0, 40.0), max_spots=50,
-                          n_big=2, big_range=(0.09, 0.13), gap_deg=2.0):
-    """Spot population following the HWO coherent-jitter Monte Carlo recipe:
-    log-normal spot sizes accumulated to a filling factor within activity
-    belts, plus a few dominant belt spots.
+def draw_monte_carlo_star(rng, f_spot=0.05, r_med=0.055, lognorm_sigma=0.9,
+                          r_min=0.061, r_max=0.16, belt_lat=18.0,
+                          belt_sigma=6.0, lon_sigma=35.0, pair_prob=0.6,
+                          max_spots=50, gap_deg=2.5):
+    """Draw a solar-style spot population.
+
+    Follows the observed statistics of sunspot groups:
+
+    * log-normal spot sizes (Bogdan et al. 1988; Baumann & Solanki 2005),
+      truncated below at r_min so every spot is resolved at the rendering
+      degree (caps below ~180/L degrees truncate shallow, breaking the
+      constant-contrast appearance);
+    * Gaussian activity belts at +-belt_lat (the butterfly diagram at a
+      fixed cycle phase; solar spots rarely appear above ~30 deg latitude);
+    * two active longitudes ~180 deg apart, with Gaussian scatter;
+    * bipolar emergence: large spots carry a smaller trailing companion
+      slightly poleward (Joy's law tilt).
 
     All spots share the same contrast, so positions are rejection-sampled to
-    be non-overlapping (overlaps would stack and render darker), and radii
-    are floored at r_min so every spot is resolved at the rendering degree
-    (features below ~180/L degrees smear out and render shallow).
+    be non-overlapping (overlapping caps stack coefficients and render
+    darker than the nominal contrast).
     """
     spots = []
+    active_lons = rng.uniform(0.0, 360.0) + np.array([0.0, 180.0])
 
-    def place(r, tries=200):
-        rad = jm.rfrac_to_deg(r)
+    def draw_radius():
+        while True:
+            r = r_med * rng.lognormal(0.0, lognorm_sigma)
+            if r_min <= r <= r_max:
+                return r
+
+    def clear(lat, lon, rad):
+        return all(_separation_deg(lat, lon, la, lo) > rad + rd + gap_deg
+                   for la, lo, rd in spots)
+
+    def place(rad, tries=200):
         for _ in range(tries):
-            lat = rng.uniform(*lat_belt) * rng.choice([-1.0, 1.0])
-            lon = rng.uniform(0.0, 360.0)
-            if all(_separation_deg(lat, lon, la, lo) > rad + rd + gap_deg
-                   for la, lo, rd in spots):
+            hemi = rng.choice([-1.0, 1.0])
+            lat = hemi * abs(rng.normal(belt_lat, belt_sigma))
+            lon = (rng.choice(active_lons) + rng.normal(0.0, lon_sigma)) % 360.0
+            if clear(lat, lon, rad):
                 spots.append((lat, lon, rad))
-                return True
-        return False
+                return lat, lon
+        return None
 
     f = 0.0
     while f < f_spot and len(spots) < max_spots:
-        r = min(max(r_med * rng.lognormal(0.0, lognorm_sigma), r_min), 0.3)
-        if place(r):
-            f += r ** 2
-        else:
+        r = draw_radius()
+        placed = place(jm.rfrac_to_deg(r))
+        if placed is None:
             break
-    for _ in range(n_big):
-        place(rng.uniform(*big_range))
+        f += r ** 2
+        # bipolar group: trailing companion at ~half the radius, offset in
+        # longitude and slightly poleward of the leading spot
+        if rng.uniform() < pair_prob and r > 1.5 * r_min:
+            r_c = max(r * rng.uniform(0.45, 0.65), r_min)
+            rad, rad_c = jm.rfrac_to_deg(r), jm.rfrac_to_deg(r_c)
+            lat, lon = placed
+            lon_c = (lon + (rad + rad_c + gap_deg + rng.uniform(1.0, 5.0))) % 360.0
+            lat_c = lat + np.sign(lat) * rng.uniform(1.0, 5.0)
+            if clear(lat_c, lon_c, rad_c):
+                spots.append((lat_c, lon_c, rad_c))
+                f += r_c ** 2
     return spots
 
 
