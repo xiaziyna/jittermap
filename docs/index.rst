@@ -6,7 +6,7 @@ jittermap
 .. image:: _images_repo/spin.gif
    :width: 680
    :align: center
-   :alt: The sunspot groups of Carrington rotation 2156, rotating at three labeled inclinations
+   :alt: The sunspot groups of Carrington rotation 2156 mapped onto a young active Sun, rotating at three labeled inclinations
 
 Astrometric jitter arises when starspots on a rotating stellar surface move
 in and out of view, shifting the observed photocenter. This jitter is a
