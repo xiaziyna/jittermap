@@ -6,7 +6,7 @@
 **Documentation: [jittermap.readthedocs.io](https://jittermap.readthedocs.io)**
 
 <p align="center">
-  <img src="images/spin.gif" width="680" alt="A Monte Carlo spotted star rotating at three labeled inclinations">
+  <img src="images/spin.gif" width="680" alt="The sunspot groups of Carrington rotation 2156, rotating at three labeled inclinations">
 </p>
 
 ## Overview
