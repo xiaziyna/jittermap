@@ -196,17 +196,6 @@ python -m jittermap.forward.build_cache --lmax 60
 python -m jittermap.forward.build_cache --photo 60
 ```
 
-## Tests
-
-```bash
-python -m pytest tests/
-```
-
-The suite cross-validates the kernels against independent symbolic and
-brute-force computations, the rotation operators against direct Wigner-D
-evaluation, the fast design-matrix path against a reference implementation,
-and end-to-end noiseless recovery on the identifiable subspace.
-
 ## Citing
 
 jittermap is based on the work in Taaki, Corrales & Hero (2026). If you use

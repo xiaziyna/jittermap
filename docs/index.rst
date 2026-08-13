@@ -45,6 +45,66 @@ The library provides:
 **If you use jittermap, any part of its code, or results produced with it
 in published work, please cite the paper above.**
 
+Installation
+------------
+
+.. code-block:: bash
+
+   pip install jittermap
+
+or, for the development version:
+
+.. code-block:: bash
+
+   pip install git+https://github.com/xiaziyna/jittermap
+
+Dependencies: numpy, scipy, sympy, matplotlib. To run the test suite from
+a source checkout:
+
+.. code-block:: bash
+
+   python -m pytest tests/
+
+The suite cross-validates the kernels against independent symbolic and
+brute-force computations, the rotation operators against direct Wigner-D
+evaluation, the fast design-matrix path against a reference
+implementation, and end-to-end noiseless recovery on the identifiable
+subspace.
+
+Quickstart
+----------
+
+.. code-block:: python
+
+   import numpy as np
+   import jittermap as jm
+
+   # A two-spot surface at degree L=10 with light small-scale texture
+   s_true = jm.multispot_surface([(30, 315, 18.0), (-15, 30, 13.0)], l_max=10,
+                                 texture_amplitude=0.002, texture_seed=3)
+
+   # Forward model: N uniform samples over one rotation, inclination 0.6 rad
+   times = np.linspace(0, 2 * np.pi, 100, endpoint=False)
+   fm = jm.ForwardModel(times, l_max=10)
+   y = fm.observe(s_true, inclination=0.6, channels="xyp", stacked=False)
+
+   # Inverse problem: joint astrometry + photometry MAP reconstruction,
+   # with the inclination estimated by profile grid search
+   result = jm.reconstruct(y, times, l_max=10, channels="xyp")
+   print(result.inclination)   # ~0.6
+   s_hat = result.s_hat
+
+Reconstruction from single channels (``channels="xy"`` for astrometry
+only, ``"p"`` for photometry only) exposes the null spaces of each:
+photometry alone cannot localize spots in latitude against the
+inclination ambiguity, while astrometry alone accesses the odd-degree
+modes photometry misses.
+
+.. image:: _images_repo/reconstruction_demo.png
+   :width: 680
+   :align: center
+   :alt: Truth vs joint, astrometry-only and photometry-only reconstructions
+
 Performance
 -----------
 
