@@ -30,7 +30,10 @@ cite the paper** (see [Citing](#citing) below).
 Astrometric jitter arises when starspots on a rotating stellar surface move
 in and out of view, shifting the observed photocenter; this jitter is a
 noise floor for detecting small exoplanets, but it also carries information
-about the stellar surface itself.
+about the stellar surface itself. An interactive visualizer of how spot
+jitter contaminates the true reflex motion of a star with an orbiting
+planet is available at
+[xiaziyna.github.io/astrometry_visualizer.html](https://xiaziyna.github.io/astrometry_visualizer.html).
 
 jittermap implements a linear forward model for the astrometric jitter and
 photometric signals of a rotating star in a spherical-harmonic coordinate

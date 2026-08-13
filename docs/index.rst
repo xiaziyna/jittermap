@@ -26,7 +26,10 @@ shows that astrometry and photometry probe complementary surface
 information: photometry measures even-degree harmonics (symmetric about the
 equator) while astrometry measures odd-degree harmonics. Their joint use
 breaks long-standing degeneracies of light-curve inversion and helps
-disentangle spot jitter from true reflex motion.
+disentangle spot jitter from true reflex motion. An interactive
+`visualizer <https://xiaziyna.github.io/astrometry_visualizer.html>`_
+shows how spot jitter contaminates the true reflex motion of a star
+with an orbiting planet.
 
 The library provides:
 
