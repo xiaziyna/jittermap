@@ -38,25 +38,48 @@ OUT = "spin.gif"
 # ---------------------------------------------------------------------------
 
 
-def draw_monte_carlo_star(rng, f_spot=0.035, r_med=0.03, lognorm_sigma=0.8,
-                          lat_belt=(5.0, 40.0), max_spots=50, n_big=2,
-                          big_range=(0.06, 0.12)):
+def _separation_deg(lat1, lon1, lat2, lon2):
+    """Great-circle separation between two (lat, lon) points, in degrees."""
+    p1, p2 = np.deg2rad(lat1), np.deg2rad(lat2)
+    dlon = np.deg2rad(lon1 - lon2)
+    cos_sep = np.sin(p1) * np.sin(p2) + np.cos(p1) * np.cos(p2) * np.cos(dlon)
+    return float(np.rad2deg(np.arccos(np.clip(cos_sep, -1.0, 1.0))))
+
+
+def draw_monte_carlo_star(rng, f_spot=0.045, r_med=0.065, lognorm_sigma=0.5,
+                          r_min=0.061, lat_belt=(5.0, 40.0), max_spots=50,
+                          n_big=2, big_range=(0.09, 0.13), gap_deg=2.0):
     """Spot population following the HWO coherent-jitter Monte Carlo recipe:
     log-normal spot sizes accumulated to a filling factor within activity
-    belts, plus a few dominant belt spots."""
+    belts, plus a few dominant belt spots.
+
+    All spots share the same contrast, so positions are rejection-sampled to
+    be non-overlapping (overlaps would stack and render darker), and radii
+    are floored at r_min so every spot is resolved at the rendering degree
+    (features below ~180/L degrees smear out and render shallow).
+    """
     spots = []
+
+    def place(r, tries=200):
+        rad = jm.rfrac_to_deg(r)
+        for _ in range(tries):
+            lat = rng.uniform(*lat_belt) * rng.choice([-1.0, 1.0])
+            lon = rng.uniform(0.0, 360.0)
+            if all(_separation_deg(lat, lon, la, lo) > rad + rd + gap_deg
+                   for la, lo, rd in spots):
+                spots.append((lat, lon, rad))
+                return True
+        return False
+
     f = 0.0
     while f < f_spot and len(spots) < max_spots:
-        r = min(r_med * rng.lognormal(0.0, lognorm_sigma), 0.3)
-        lat = rng.uniform(*lat_belt) * rng.choice([-1.0, 1.0])
-        lon = rng.uniform(0.0, 360.0)
-        spots.append((lat, lon, jm.rfrac_to_deg(r)))
-        f += r ** 2
+        r = min(max(r_med * rng.lognormal(0.0, lognorm_sigma), r_min), 0.3)
+        if place(r):
+            f += r ** 2
+        else:
+            break
     for _ in range(n_big):
-        r = rng.uniform(*big_range)
-        lat = rng.uniform(*lat_belt) * rng.choice([-1.0, 1.0])
-        lon = rng.uniform(0.0, 360.0)
-        spots.append((lat, lon, jm.rfrac_to_deg(r)))
+        place(rng.uniform(*big_range))
     return spots
 
 
@@ -65,7 +88,7 @@ def main():
     spots = draw_monte_carlo_star(rng)
     print(f"{len(spots)} spots, radii "
           f"{min(s[2] for s in spots):.1f}-{max(s[2] for s in spots):.1f} deg")
-    s = jm.multispot_surface(spots, L, sigma_taper=True)
+    s = jm.multispot_surface(spots, L, contrast=0.7, sigma_taper=True)
 
     sh = SHIndexer(L)
     X, Y, Z, THETA, PHI, mask = build_projection_grid(n_grid=N_GRID)
