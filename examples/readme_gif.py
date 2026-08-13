@@ -1,13 +1,19 @@
 """Generate the README/docs header animation.
 
-A realistic Monte Carlo spotted star (log-normal spot-size population in
-activity belts, plus dominant belt spots) at degree L = 40, shown rotating
-at three labeled inclinations with spin-axis, meridian, and parallel
-overlays.
+The surface is the real Sun: every sunspot group of Carrington rotation
+2156 (2014 Oct 9 - Nov 5, the most active rotation of cycle 24, including
+AR 12192, the largest group in 24 years), taken at its central-meridian
+crossing from the RGO/USAF/NOAA daily group record compiled by Hathaway
+(solarcyclescience.com/AR_Database). Latitudes, Carrington longitudes,
+and relative spot areas are all observed; a single knob (AREA_SCALE)
+multiplies the areas to turn the 2014 Sun into a young active-Sun analog,
+since at true solar scale only AR 12192 is resolvable at L = 40. All
+spots share the same contrast of 0.7.
 
-Rendering uses the Wigner coefficient-rotation path with a precomputed
-spherical-harmonic basis matrix, so each frame is a single matrix-vector
-product even at L = 40.
+Shown at degree L = 40, rotating at three labeled inclinations with
+spin-axis, meridian, and parallel overlays. Rendering uses the Wigner
+coefficient-rotation path with a precomputed spherical-harmonic basis
+matrix, so each frame is a single matrix-vector product even at L = 40.
 """
 
 import numpy as np
@@ -33,88 +39,59 @@ BETAS = [np.deg2rad(10), np.deg2rad(45), np.deg2rad(75)]
 BETA_LABELS = [r"$\beta = 10^\circ$ (near equator-on)",
                r"$\beta = 45^\circ$",
                r"$\beta = 75^\circ$ (near pole-on)"]
-SEED = 7
+AREA_SCALE = 9.0   # multiply observed group areas; 1.0 = the literal Sun
 OUT = "spin.gif"
 # ---------------------------------------------------------------------------
 
+# Carrington rotation 2156: (NOAA AR, latitude deg, Carrington longitude deg,
+# corrected whole-spot group area in millionths of the solar hemisphere), each
+# group at its central-meridian crossing. RGO/USAF/NOAA record via Hathaway's
+# active region database.
+CR2156_GROUPS = [
+    (12192, -12.0, 248.0, 2700.0),
+    (12187,  -9.0, 320.0,  200.0),
+    (12186, -21.0,  19.0,  180.0),
+    (12182, -14.0, 123.0,  170.0),
+    (12193,   4.0, 284.0,   80.0),
+    (12195,   7.0, 184.0,   80.0),
+    (12178,  -1.0, 158.0,   60.0),
+    (12194, -12.0, 209.0,   50.0),
+    (12197, -13.0, 161.0,   30.0),
+    (12201,  -5.0,  84.0,   30.0),
+    (12189,  21.0, 342.0,   20.0),
+    (12199, -17.0, 126.0,   20.0),
+    (12200, -16.0, 101.0,   20.0),
+    (12185, -13.0,  62.0,   10.0),
+    (12188,  17.0,  26.0,   10.0),
+    (12190,  22.0, 300.0,   10.0),
+    (12191, -11.0, 304.0,   10.0),
+    (12196,  -3.0, 161.0,   10.0),
+    (12198, -14.0, 193.0,   10.0),
+    (12202,  13.0, 134.0,   10.0),
+]
 
-def _separation_deg(lat1, lon1, lat2, lon2):
-    """Great-circle separation between two (lat, lon) points, in degrees."""
-    p1, p2 = np.deg2rad(lat1), np.deg2rad(lat2)
-    dlon = np.deg2rad(lon1 - lon2)
-    cos_sep = np.sin(p1) * np.sin(p2) + np.cos(p1) * np.cos(p2) * np.cos(dlon)
-    return float(np.rad2deg(np.arccos(np.clip(cos_sep, -1.0, 1.0))))
 
+def solar_cr2156_spots(area_scale=AREA_SCALE):
+    """Observed CR 2156 sunspot groups as (lat, lon, cap_radius_deg) tuples.
 
-def draw_monte_carlo_star(rng, f_spot=0.05, r_med=0.055, lognorm_sigma=0.9,
-                          r_min=0.061, r_max=0.16, belt_lat=18.0,
-                          belt_sigma=6.0, lon_sigma=35.0, pair_prob=0.6,
-                          max_spots=50, gap_deg=2.5):
-    """Draw a solar-style spot population.
+    A group of area A (millionths of the solar hemisphere) covers a fraction
+    A * 1e-6 of the hemisphere, so a circular cap of the same area has
+    half-angle theta = arccos(1 - A * 1e-6). area_scale multiplies A,
+    preserving every group's relative size and position.
 
-    Follows the observed statistics of sunspot groups:
-
-    * log-normal spot sizes (Bogdan et al. 1988; Baumann & Solanki 2005),
-      truncated below at r_min so every spot is resolved at the rendering
-      degree (caps below ~180/L degrees truncate shallow, breaking the
-      constant-contrast appearance);
-    * Gaussian activity belts at +-belt_lat (the butterfly diagram at a
-      fixed cycle phase; solar spots rarely appear above ~30 deg latitude);
-    * two active longitudes ~180 deg apart, with Gaussian scatter;
-    * bipolar emergence: large spots carry a smaller trailing companion
-      slightly poleward (Joy's law tilt).
-
-    All spots share the same contrast, so positions are rejection-sampled to
-    be non-overlapping (overlapping caps stack coefficients and render
-    darker than the nominal contrast).
+    Displayed south pole up: CR 2156's activity was almost entirely in the
+    southern hemisphere, so this keeps the active hemisphere in view when
+    the visible pole tips toward the observer at high inclination.
     """
     spots = []
-    active_lons = rng.uniform(0.0, 360.0) + np.array([0.0, 180.0])
-
-    def draw_radius():
-        while True:
-            r = r_med * rng.lognormal(0.0, lognorm_sigma)
-            if r_min <= r <= r_max:
-                return r
-
-    def clear(lat, lon, rad):
-        return all(_separation_deg(lat, lon, la, lo) > rad + rd + gap_deg
-                   for la, lo, rd in spots)
-
-    def place(rad, tries=200):
-        for _ in range(tries):
-            hemi = rng.choice([-1.0, 1.0])
-            lat = hemi * abs(rng.normal(belt_lat, belt_sigma))
-            lon = (rng.choice(active_lons) + rng.normal(0.0, lon_sigma)) % 360.0
-            if clear(lat, lon, rad):
-                spots.append((lat, lon, rad))
-                return lat, lon
-        return None
-
-    f = 0.0
-    while f < f_spot and len(spots) < max_spots:
-        r = draw_radius()
-        placed = place(jm.rfrac_to_deg(r))
-        if placed is None:
-            break
-        f += r ** 2
-        # bipolar group: trailing companion at ~half the radius, offset in
-        # longitude and slightly poleward of the leading spot
-        if rng.uniform() < pair_prob and r > 1.5 * r_min:
-            r_c = max(r * rng.uniform(0.45, 0.65), r_min)
-            rad, rad_c = jm.rfrac_to_deg(r), jm.rfrac_to_deg(r_c)
-            lat, lon = placed
-            lon_c = (lon + (rad + rad_c + gap_deg + rng.uniform(1.0, 5.0))) % 360.0
-            lat_c = lat + np.sign(lat) * rng.uniform(1.0, 5.0)
-            if clear(lat_c, lon_c, rad_c):
-                spots.append((lat_c, lon_c, rad_c))
-                f += r_c ** 2
+    for _, lat, lon, area in CR2156_GROUPS:
+        theta = np.rad2deg(np.arccos(1.0 - min(area * area_scale * 1e-6, 1.0)))
+        spots.append((-lat, lon, theta))
     return spots
 
 
 def main():
-    rng = np.random.default_rng(SEED)
-    spots = draw_monte_carlo_star(rng)
+    spots = solar_cr2156_spots()
     print(f"{len(spots)} spots, radii "
           f"{min(s[2] for s in spots):.1f}-{max(s[2] for s in spots):.1f} deg")
     s = jm.multispot_surface(spots, L, contrast=0.7, sigma_taper=True)
