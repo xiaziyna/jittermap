@@ -1,5 +1,6 @@
 # jittermap
 
+[![PyPI](https://img.shields.io/pypi/v/jittermap)](https://pypi.org/project/jittermap/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Documentation Status](https://readthedocs.org/projects/jittermap/badge/?version=latest)](https://jittermap.readthedocs.io/en/latest/)
 
@@ -85,7 +86,13 @@ inclinations, and noise realizations rather than a single fit.
 ## Installation
 
 ```bash
-pip install -e .
+pip install jittermap
+```
+
+or, for the development version:
+
+```bash
+pip install git+https://github.com/xiaziyna/jittermap
 ```
 
 Dependencies: numpy, scipy, sympy, matplotlib.
