@@ -66,3 +66,13 @@ def test_pole_on_astrometry_static(kernels):
     s = multispot_surface([(45, 90, 15.0)], L)
     y = fm.observe(s, inclination=np.pi / 2, channels="p", stacked=True)
     assert np.std(y) < 1e-10 * max(1.0, np.abs(np.mean(y)))
+
+
+def test_uniform_disk_raw_normalization():
+    fm = ForwardModel(TIMES, L)
+    s = np.zeros((L + 1)**2)
+    s[0] = np.sqrt(4*np.pi)
+    signals = fm.observe(s, INC, channels="xyp", stacked=False)
+    np.testing.assert_allclose(signals["p"], np.pi, atol=1e-12)
+    np.testing.assert_allclose(signals["x"], 0, atol=1e-12)
+    np.testing.assert_allclose(signals["y"], 0, atol=1e-12)

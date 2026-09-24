@@ -96,10 +96,18 @@ def multispot_surface(spots, l_max, contrast=1.0, sigma_taper=False,
 
 def rfrac_to_deg(r_frac):
     """Convert a spot radius expressed as a fraction of the stellar radius
-    R_spot / R_star to the angular cap radius in degrees."""
-    return float(np.rad2deg(2.0 * np.arcsin(r_frac)))
+    R_spot / R_star to the angular cap radius in degrees.
+
+    R_spot is the radius of the cap boundary projected along its own axis,
+    so R_spot = R_star * sin(radius_deg). This represents caps up to a
+    hemisphere (0 <= r_frac <= 1), not a square root of surface area."""
+    if not 0.0 <= r_frac <= 1.0:
+        raise ValueError("r_frac must be between 0 and 1")
+    return float(np.rad2deg(np.arcsin(r_frac)))
 
 
 def deg_to_rfrac(radius_deg):
-    """Inverse of rfrac_to_deg."""
-    return float(np.sin(np.deg2rad(radius_deg) / 2.0))
+    """Inverse of rfrac_to_deg for cap radii between 0 and 90 degrees."""
+    if not 0.0 <= radius_deg <= 90.0:
+        raise ValueError("radius_deg must be between 0 and 90")
+    return float(np.sin(np.deg2rad(radius_deg)))

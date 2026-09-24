@@ -98,7 +98,13 @@ def design_matrix_vandermonde(l, inclination, A_lm, B0_list, C_funcs, phases_lis
 
 class ForwardModel:
     """Forward model mapping SH surface coefficients to time series of
-    astrometric photocenter shifts (x, y) and disk-integrated photometry (p).
+    raw astrometric first moments (x, y) and disk-integrated flux (p).
+
+    Outputs are not divided by disk flux. For a unit-intensity background,
+    divide perturbation x, y and p by pi for linearized centroid shifts
+    in stellar-radius units and fractional flux. For a complete surface,
+    its exact centroid is the first moment divided by total flux.
+    Contrast already present in coefficients must not be applied again.
 
     Parameters
     ----------

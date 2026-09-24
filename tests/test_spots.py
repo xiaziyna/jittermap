@@ -91,3 +91,26 @@ def test_random_surface_symmetry_and_seed():
 def test_rfrac_roundtrip():
     for r in [0.05, 0.1, 0.25]:
         assert abs(deg_to_rfrac(rfrac_to_deg(r)) - r) < 1e-12
+
+
+def test_radius_fraction_physical_geometry():
+    # A 30-degree cap has a projected boundary radius of 0.5 R_star.
+    assert rfrac_to_deg(0.5) == pytest.approx(30.0)
+    assert deg_to_rfrac(30.0) == pytest.approx(0.5)
+    assert rfrac_to_deg(1.0) == pytest.approx(90.0)
+    # Its fraction of the full spherical surface is (1-cos(angle))/2.
+    r = 0.05
+    assert spot_area_fraction(rfrac_to_deg(r)) == pytest.approx(
+        (1 - np.sqrt(1-r*r))/2)
+
+
+@pytest.mark.parametrize("value", [-0.1, 1.1, np.nan])
+def test_invalid_radius_fraction(value):
+    with pytest.raises(ValueError):
+        rfrac_to_deg(value)
+
+
+@pytest.mark.parametrize("value", [-1, 91, np.nan])
+def test_invalid_cap_radius(value):
+    with pytest.raises(ValueError):
+        deg_to_rfrac(value)

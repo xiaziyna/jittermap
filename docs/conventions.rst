@@ -72,22 +72,32 @@ Units and normalization
 * Times are in radians of rotation phase when :math:`\omega = 1`
   (the default); pass physical times together with
   :math:`\omega = 2\pi/P` otherwise.
-* Photocenter outputs are normalized to the stellar angular radius for a
-  unit-contrast surface. To convert to physical microarcseconds, multiply
-  by :math:`(1/\pi)\,\Theta_\star\, c` where
-  :math:`\Theta_\star = 4650\,(R_\star/R_\odot)/(d/\mathrm{pc})\;\mu\mathrm{as}`
-  is the stellar angular radius and :math:`c` the spot contrast (the
-  :math:`1/\pi` carries the visibility-kernel normalization of the paper's
-  integrals).
-* Spot ``contrast=1`` means fully dark relative to the photosphere;
-  spot radii convert between fractions of the stellar radius and angular
-  cap radius via :func:`jittermap.harmonics.surfaces.rfrac_to_deg`.
+* ``ForwardModel`` returns raw projected first moments (x, y) and
+  raw disk-integrated flux (p), not a flux-normalized centroid or fractional
+  photometry. For a uniform unit-intensity disk, p is :math:`F_0=\pi`.
+  For perturbation coefficients, divide **both** the first moments and
+  the flux perturbation by :math:`\pi` to obtain the linearized centroid
+  in stellar-radius units and fractional flux respectively. Multiply the
+  centroid by the stellar angular radius for angular units.
+* For an exact centroid of a complete surface, divide its first moments
+  by its instantaneous total flux. A perturbation-only surface needs its
+  background flux restored first. The linearized conversion above assumes
+  small flux perturbations and no limb darkening.
+* Spot contrast is already included in generated coefficients; do not
+  multiply by contrast a second time. ``contrast=1`` means fully dark.
+* A circular cap of angular radius :math:`a` has projected boundary radius
+  :math:`R_{\rm spot}/R_\star=\sin a`. The radius helpers use this definition
+  for caps up to a hemisphere. Earlier versions incorrectly used
+  :math:`a=2\arcsin(R_{\rm spot}/R_\star)`, which instead interpreted the
+  input as the square root of the fraction of the whole stellar surface.
+  Explicit angular-radius inputs to ``generate_spot`` and
+  ``multispot_surface`` are unaffected by the helper correction.
 
 Selection rules (for quick reference)
 -------------------------------------
 
-* Astrometric kernels: non-zero only for odd :math:`l` and :math:`l \le 2`;
+* Astrometric kernels: non-zero only for odd :math:`l` or :math:`l \le 2`;
   the x-kernel needs odd :math:`m`, the y-kernel even :math:`m`.
-* Photometric kernel: non-zero only for even :math:`l` and :math:`l \le 2`.
+* Photometric kernel: non-zero only for even :math:`l` or :math:`l \le 2`.
 * Consequence: photometry is blind to odd :math:`l \ge 3`, astrometry to
   even :math:`l \ge 4`; jointly all degrees are sampled.
