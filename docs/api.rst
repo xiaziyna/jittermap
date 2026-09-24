@@ -28,6 +28,12 @@ Forward model
 .. automodule:: jittermap.forward.fourier
    :members:
 
+Stellar physics
+---------------
+
+.. automodule:: jittermap.star_physics.limb_darkening
+   :members:
+
 Inference
 ---------
 

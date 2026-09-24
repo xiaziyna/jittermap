@@ -52,6 +52,7 @@ from jittermap.inference.inversion import (gmrf_precision_diag,
                                            default_lambda)
 from jittermap.inference.inclination import estimate_inclination, profile_objective
 from jittermap.inference.reconstruct import reconstruct, ReconstructionResult
+from jittermap.star_physics.limb_darkening import LimbDarkening
 
 __all__ = [
     "SHIndexer", "build_real_surface_transform", "project_real_surface", "mse",
@@ -66,4 +67,5 @@ __all__ = [
     "solve_ridge", "solve_ridge_real_constraint", "default_lambda",
     "estimate_inclination", "profile_objective",
     "reconstruct", "ReconstructionResult",
+    "LimbDarkening",
 ]

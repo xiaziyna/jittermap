@@ -172,6 +172,8 @@ jittermap
 │   │   ├── inversion.py   #   GMRF-regularized MAP / ridge solvers
 │   │   ├── inclination.py #   profile-objective inclination estimation
 │   │   └── reconstruct.py #   high-level joint reconstruction
+│   ├── star_physics       # beyond the uniform rigid disk
+│   │   └── limb_darkening.py  # laws as mu power series; darkened kernel tables
 │   ├── plotting
 │   │   ├── render.py      #   visible-hemisphere rendering
 │   │   ├── panels.py      #   truth-vs-reconstruction comparison figures

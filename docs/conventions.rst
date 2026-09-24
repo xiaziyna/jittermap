@@ -85,6 +85,10 @@ Units and normalization
   small flux perturbations and no limb darkening.
 * Spot contrast is already included in generated coefficients; do not
   multiply by contrast a second time. ``contrast=1`` means fully dark.
+* With a limb-darkening law (``ForwardModel(..., limb_darkening=law)``)
+  the uniform-disk flux is :math:`F_0 = 2\pi\int_0^1 \mu\, w(\mu)\,d\mu`
+  instead of :math:`\pi` (``law.disk_flux()``); divide perturbations by
+  that. The default ``limb_darkening=None`` is the uniform disk.
 * A circular cap of angular radius :math:`a` has projected boundary radius
   :math:`R_{\rm spot}/R_\star=\sin a`. The radius helpers use this definition
   for caps up to a hemisphere. Earlier versions incorrectly used
@@ -101,3 +105,5 @@ Selection rules (for quick reference)
 * Photometric kernel: non-zero only for even :math:`l` or :math:`l \le 2`.
 * Consequence: photometry is blind to odd :math:`l \ge 3`, astrometry to
   even :math:`l \ge 4`; jointly all degrees are sampled.
+* These rules are exact for the uniform disk only. Limb darkening gives
+  small non-zero kernels at the excluded degrees.

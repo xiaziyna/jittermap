@@ -114,6 +114,11 @@ class ForwardModel:
         Maximum spherical harmonic degree of the surface model.
     omega : float
         Rotation rate (radians per unit time).
+    limb_darkening : jittermap.star_physics.limb_darkening.LimbDarkening or None
+        Limb-darkening law. None (the default) is the uniform disk and
+        reproduces the kernel tables of compute_A_lm / compute_A_lm_photo;
+        otherwise the tables are the law's coefficient-weighted sum of the
+        per-power tables. Nothing else in the model changes.
 
     Examples
     --------
@@ -122,24 +127,29 @@ class ForwardModel:
     >>> y = fm.observe(s, inclination=0.6, channels='xyp')
     """
 
-    def __init__(self, times, l_max, omega=1.0):
+    def __init__(self, times, l_max, omega=1.0, limb_darkening=None):
         self.times = np.asarray(times, dtype=float)
         self.l_max = l_max
         self.omega = omega
+        self.limb_darkening = limb_darkening
         self.n_times = len(self.times)
         self._precomp = precompute_vandermonde(self.times, l_max, omega)
         self._kernels = None
 
     @property
     def kernels(self):
-        """Dict of kernel tables {'x': A_lm_x, 'y': A_lm_y, 'p': A_lm_photo}."""
+        """Dict of kernel tables {'x': A_lm_x, 'y': A_lm_y, 'p': A_lm_photo},
+        limb-darkened if a law was given."""
         if self._kernels is None:
-            A_lm_x, A_lm_y = compute_A_lm(self.l_max)
-            self._kernels = {
-                "x": A_lm_x,
-                "y": A_lm_y,
-                "p": compute_A_lm_photo(self.l_max),
-            }
+            if self.limb_darkening is None:
+                A_lm_x, A_lm_y = compute_A_lm(self.l_max)
+                self._kernels = {
+                    "x": A_lm_x,
+                    "y": A_lm_y,
+                    "p": compute_A_lm_photo(self.l_max),
+                }
+            else:
+                self._kernels = self.limb_darkening.kernel_tables(self.l_max)
         return self._kernels
 
     def design_channel(self, inclination, channel):

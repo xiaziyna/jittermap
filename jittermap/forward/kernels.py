@@ -15,6 +15,14 @@ compute_A_lm_photo, the default), SymPy symbolic radial integrals with
 closed-form azimuthal integrals, and brute-force numeric summation over
 a projected-disk grid.
 
+Every kernel takes an optional ``power`` p >= 0 multiplying the integrand
+by mu^p, where mu = sin(theta) cos(phi) is the foreshortening cosine in the
+kernel frame. The default p = 0 is the uniform disk; the powers are the
+building blocks of a limb-darkening law w(mu) = sum_k u_k mu^{p_k} (see
+jittermap.star_physics.limb_darkening). Since mu^p = (1-x^2)^{p/2} cos^p(phi),
+each power keeps the radial x azimuthal separation. The parity selection
+rules hold only for p = 0.
+
 Results are cached in memory and on disk (packaged tables first, then a
 writable user cache).
 """
@@ -94,21 +102,36 @@ def _norm_lm(l, m):
     return np.sqrt((2 * l + 1) / (4 * np.pi) * factorial(l - m) / factorial(l + m))
 
 
-def compute_k_y(l, m):
-    """k^y_{l,m} via SciPy quadrature."""
-    radial, _ = integrate.quad(lambda x: lpmv(m, l, x) * x * (1 - x ** 2) ** 0.5,
+def compute_k_y(l, m, power=0):
+    """k^y_{l,m} via SciPy quadrature, with the integrand weighted by
+    mu^power (power = 0 is the uniform disk)."""
+    p = float(power)
+    radial, _ = integrate.quad(lambda x: lpmv(m, l, x) * x * (1 - x ** 2) ** ((1 + p) / 2),
                                -1, 1, epsabs=1e-13)
-    azimuthal, _ = integrate.quad(lambda x: np.cos(x) * np.cos(m * x),
+    azimuthal, _ = integrate.quad(lambda x: np.cos(x) ** (1 + p) * np.cos(m * x),
                                   -np.pi / 2, np.pi / 2, epsabs=1e-13)
     return radial * azimuthal * _norm_lm(l, m)
 
 
-def compute_k_x(l, m):
+def compute_k_x(l, m, power=0):
     """k^x_{l,m} via SciPy quadrature (without the i-phase applied by
-    compute_A_lm)."""
-    radial, _ = integrate.quad(lambda x: lpmv(m, l, x) * (1 - x ** 2),
+    compute_A_lm), with the integrand weighted by mu^power."""
+    p = float(power)
+    radial, _ = integrate.quad(lambda x: lpmv(m, l, x) * (1 - x ** 2) ** ((2 + p) / 2),
                                -1, 1, epsabs=1e-13)
-    azimuthal, _ = integrate.quad(lambda x: np.sin(x) * np.cos(x) * np.sin(m * x),
+    azimuthal, _ = integrate.quad(lambda x: np.sin(x) * np.cos(x) ** (1 + p) * np.sin(m * x),
+                                  -np.pi / 2, np.pi / 2, epsabs=1e-13)
+    return radial * azimuthal * _norm_lm(l, m)
+
+
+def compute_k_photo_quad(l, m, power=0):
+    """k^p_{l,m} via SciPy quadrature, with the integrand weighted by
+    mu^power. Used for the limb-darkening powers; the uniform-disk table
+    (power = 0) is built from the exact SymPy path compute_k_photo."""
+    p = float(power)
+    radial, _ = integrate.quad(lambda x: lpmv(m, l, x) * (1 - x ** 2) ** ((1 + p) / 2),
+                               -1, 1, epsabs=1e-13)
+    azimuthal, _ = integrate.quad(lambda x: np.cos(x) ** (1 + p) * np.cos(m * x),
                                   -np.pi / 2, np.pi / 2, epsabs=1e-13)
     return radial * azimuthal * _norm_lm(l, m)
 
@@ -160,19 +183,30 @@ def compute_k_photo(l, m, prec=50):
 # Assembled kernel tables (cached)
 # ---------------------------------------------------------------------------
 
-def _selection_rows(lp):
-    """Degrees with non-vanishing astrometric kernels: l <= 2 or odd l."""
+def _selection_rows(lp, power=0):
+    """Degrees with non-vanishing astrometric kernels: l <= 2 or odd l.
+    The rule holds for the uniform disk only; any other power keeps
+    every degree."""
+    if float(power) != 0.0:
+        return list(range(lp + 1))
     return [ln for ln in range(lp + 1) if ln <= 2 or ln % 2 == 1]
 
 
-def _compute_A_lm_nocache(lp):
+def _power_suffix(power):
+    """Cache-file suffix for a mu power; empty for the uniform disk so the
+    shipped tables keep their names."""
+    p = float(power)
+    return "" if p == 0.0 else f"_mu{p:g}"
+
+
+def _compute_A_lm_nocache(lp, power=0):
     lp = int(lp)
     A_lm_y = np.zeros((lp + 1, 2 * lp + 1), dtype=complex)
     A_lm_x = np.zeros((lp + 1, 2 * lp + 1), dtype=complex)
-    for ln in _selection_rows(lp):
+    for ln in _selection_rows(lp, power):
         for mn in range(-ln, ln + 1):
-            kx = compute_k_x(ln, mn)
-            ky = compute_k_y(ln, mn)
+            kx = compute_k_x(ln, mn, power)
+            ky = compute_k_y(ln, mn, power)
             A_lm_x[ln, mn + lp] = 0 if np.isnan(kx) else kx
             A_lm_y[ln, mn + lp] = 0 if np.isnan(ky) else ky
     A_lm_x *= 1j  # x-channel phase in the complex e^{i m phi} convention
@@ -180,21 +214,22 @@ def _compute_A_lm_nocache(lp):
 
 
 @lru_cache(maxsize=None)
-def _compute_A_lm_cached(lp):
+def _compute_A_lm_cached(lp, power=0.0):
     lp = int(lp)
-    fname = f"A_lm_numeric_lp{lp}.npz"
+    fname = f"A_lm_numeric_lp{lp}{_power_suffix(power)}.npz"
     cached = _cache_load(fname, ("A_lm_x", "A_lm_y"))
     if cached is not None:
         return cached
-    A_lm_x, A_lm_y = _compute_A_lm_nocache(lp)
+    A_lm_x, A_lm_y = _compute_A_lm_nocache(lp, power)
     _cache_store(fname, A_lm_x=A_lm_x, A_lm_y=A_lm_y)
     return A_lm_x, A_lm_y
 
 
-def compute_A_lm(lp):
+def compute_A_lm(lp, power=0):
     """Astrometric kernel tables (A_lm_x, A_lm_y) for max degree lp,
-    each of shape (lp+1, 2*lp+1). Cached in memory and on disk."""
-    A_lm_x, A_lm_y = _compute_A_lm_cached(int(lp))
+    each of shape (lp+1, 2*lp+1), with the integrand weighted by
+    mu^power. Cached in memory and on disk."""
+    A_lm_x, A_lm_y = _compute_A_lm_cached(int(lp), float(power))
     return A_lm_x.copy(), A_lm_y.copy()
 
 
@@ -227,38 +262,44 @@ def compute_A_lm_sympy(lp):
     return A_lm_x.copy(), A_lm_y.copy()
 
 
-def _compute_A_lm_photo_nocache(lp):
+def _compute_A_lm_photo_nocache(lp, power=0):
     A_lm_photo = np.zeros((lp + 1, 2 * lp + 1), dtype=complex)
+    uniform = float(power) == 0.0
     for ln in range(lp + 1):
         for mn in range(-ln, ln + 1):
-            A_lm_photo[ln, mn + lp] = compute_k_photo(ln, mn)
+            if uniform:
+                A_lm_photo[ln, mn + lp] = compute_k_photo(ln, mn)
+            else:
+                A_lm_photo[ln, mn + lp] = compute_k_photo_quad(ln, mn, power)
     return A_lm_photo
 
 
 @lru_cache(maxsize=None)
-def _compute_A_lm_photo_cached(lp):
+def _compute_A_lm_photo_cached(lp, power=0.0):
     lp = int(lp)
-    fname = f"A_lm_photo_lp{lp}.npz"
+    fname = f"A_lm_photo_lp{lp}{_power_suffix(power)}.npz"
     cached = _cache_load(fname, ("A_lm_photo",))
     if cached is not None:
         return cached[0]
-    A_lm_photo = _compute_A_lm_photo_nocache(lp)
+    A_lm_photo = _compute_A_lm_photo_nocache(lp, power)
     _cache_store(fname, A_lm_photo=A_lm_photo)
     return A_lm_photo
 
 
-def compute_A_lm_photo(lp):
+def compute_A_lm_photo(lp, power=0):
     """Photometric kernel table A_lm_photo for max degree lp,
-    shape (lp+1, 2*lp+1). Cached in memory and on disk."""
-    return _compute_A_lm_photo_cached(int(lp)).copy()
+    shape (lp+1, 2*lp+1), with the integrand weighted by mu^power.
+    Cached in memory and on disk."""
+    return _compute_A_lm_photo_cached(int(lp), float(power)).copy()
 
 
 # ---------------------------------------------------------------------------
 # Brute-force grid cross-check
 # ---------------------------------------------------------------------------
 
-def numerical_A_lm_photo(lp, n_grid=1000):
-    """Photometric kernel by direct summation over the visible disk;
+def numerical_A_lm_photo(lp, n_grid=1000, power=0):
+    """Photometric kernel by direct summation over the visible disk,
+    weighted by mu^power (mu is the depth coordinate X of the sky grid);
     slow, used as an independent cross-check of compute_A_lm_photo."""
     y = np.linspace(-1, 1, n_grid)
     z = np.linspace(-1, 1, n_grid)
@@ -271,9 +312,10 @@ def numerical_A_lm_photo(lp, n_grid=1000):
     Z[mask] = np.nan
     THETA = np.arccos(np.clip(Z, -1, 1))
     PHI = np.arctan2(Y, X)
+    weight = X ** float(power)
     A_lm_photo = np.zeros((lp + 1, 2 * lp + 1), dtype=complex)
     for ln in range(lp + 1):
         for mn in range(-ln, ln + 1):
-            A_lm_photo[ln, mn + lp] = np.nansum(sph_harm(mn, ln, PHI, THETA))
+            A_lm_photo[ln, mn + lp] = np.nansum(weight * sph_harm(mn, ln, PHI, THETA))
     A_lm_photo /= (n_grid / 2) ** 2
     return A_lm_photo
