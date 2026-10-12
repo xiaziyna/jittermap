@@ -149,10 +149,6 @@ the library and reproduce the key results of the paper:
    produce the same observable signals to a fraction of a percent, so a
    modest fit degree captures everything the data can see.
 
-The full documentation (theory summary with the paper's equations mapped to
-the API, tutorials, examples, API reference) builds with sphinx from
-`docs/` and is ReadTheDocs-ready (`.readthedocs.yaml`).
-
 ## Organization
 
 <pre>
